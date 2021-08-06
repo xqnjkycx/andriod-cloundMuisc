@@ -76,12 +76,19 @@ public class PhoneLogin extends AppCompatActivity {
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         String responseData = response.body().string();
+                        Log.d("返回的数据",""+responseData);
                         Gson gson = new Gson();
                         loginStatusClass loginRes = gson.fromJson(responseData,loginStatusClass.class);
                         int code = loginRes.getCode();
                         if (code == 200){
-                            //finish();
+                            finish();
+                            String nickName = loginRes.getProfile().getNickname();
+                            String avatarUrl = loginRes.getProfile().getAvatarUrl();
+                            String backgroundUrl = loginRes.getProfile().getBackgroundUrl();
                             Intent intent = new Intent(PhoneLogin.this,MainActivity.class);
+                            intent.putExtra("nickName",nickName);
+                            intent.putExtra("avatarUrl",avatarUrl);
+                            intent.putExtra("backgroundUrl",backgroundUrl);
                             startActivity(intent);
                      } else {
                             Message message = new Message();
@@ -91,9 +98,6 @@ public class PhoneLogin extends AppCompatActivity {
                     }
                     @Override
                     public void  onFailure(Call call,IOException e){
-                        Toast.makeText(PhoneLogin.this,"您的手机号或密码有错",Toast.LENGTH_SHORT).show();
-                        passwordET.setText(null);
-                        passwordET.setText(null);
                     }
                 });
             }

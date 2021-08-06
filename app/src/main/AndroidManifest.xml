@@ -23,12 +23,7 @@
         <activity
             android:name=".MainActivity"
             android:label="网易云音乐"
-            android:launchMode="singleTop"
             >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 

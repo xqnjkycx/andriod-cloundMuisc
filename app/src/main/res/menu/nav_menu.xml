@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_fav"
+            android:icon="@drawable/fav"
+            android:title="我的最爱"
+            />
+        <item
+            android:id="@+id/nav_histroy"
+            android:icon="@drawable/hitstory"
+            android:title="历史播放" />
+        <item
+            android:id="@+id/nav_recommend"
+            android:icon="@drawable/recommend"
+            android:title="今日推荐" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/logout"
+            android:title="退出登录" />
+    </group>
+</menu>
