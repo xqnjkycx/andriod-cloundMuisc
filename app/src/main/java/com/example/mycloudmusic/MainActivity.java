@@ -5,9 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -19,14 +23,43 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.component.Personalized;
+import com.example.fragment.indexFragment;
+import com.example.fragment.rankFragment;
+import com.example.fragment.searchFragment;
+import com.example.fragment.userFragment;
 import com.google.android.material.navigation.NavigationView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
+
+    private RelativeLayout tabbarIndexLayout;
+    private ImageView tabbarIndexIcon;
+    private TextView tabbarIndexText;
+
+    private RelativeLayout tabbarRankLayout;
+    private ImageView tabbarRankIcon;
+    private TextView tabbarRankText;
+
+    private RelativeLayout tabbarSearchLayout;
+    private ImageView tabbarSearchIcon;
+    private TextView tabbarSearchText;
+
+    private RelativeLayout tabbarUserLayout;
+    private ImageView tabbarUserIcon;
+    private TextView tabbarUserText;
+
+    private Fragment indexFragment;
+    private Fragment rankFragment;
+    private Fragment searchFragment;
+    private Fragment userFragment;
+
+    FragmentManager fragmentManager = getSupportFragmentManager();
+
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Personalized personalizedSongsBlock = new Personalized();
@@ -58,7 +91,8 @@ public class MainActivity extends AppCompatActivity {
         Glide.with(MainActivity.this).load(avatarUrl).into(iconHeader);
         Glide.with(MainActivity.this).load(backgroundUrl).into(navHeaderBg);
         avatarName.setText(nickName);
-        //---
+        //初始化tabbaer
+        tabbarInitView();
     }
     //加载Toolbar的布局
     public boolean onCreateOptionsMenu(Menu menu){
@@ -75,4 +109,137 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
+    //初始化Tabbar
+    public void tabbarInitView(){
+        tabbarIndexLayout = (RelativeLayout) findViewById(R.id.tabbar_index_layout);
+        tabbarIndexIcon = (ImageView) findViewById(R.id.tabbar_index_icon);
+        tabbarIndexText = (TextView) findViewById(R.id.tabbar_index_text);
+        tabbarRankLayout = (RelativeLayout) findViewById(R.id.tabbar_rank_layout);
+        tabbarRankIcon = (ImageView) findViewById(R.id.tabbar_rank_icon);
+        tabbarRankText = (TextView) findViewById(R.id.tabbar_rank_text);
+        tabbarSearchLayout = (RelativeLayout) findViewById(R.id.tabbar_search_layout);
+        tabbarSearchIcon = (ImageView) findViewById(R.id.tabbar_search_icon);
+        tabbarSearchText = (TextView) findViewById(R.id.tabbar_search_text);
+        tabbarUserLayout = (RelativeLayout) findViewById(R.id.tabbar_user_layout);
+        tabbarUserIcon = (ImageView) findViewById(R.id.tabbar_user_icon);
+        tabbarUserText = (TextView) findViewById(R.id.tabbar_user_text);
+
+        tabbarIndexLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setChioceItem(0);
+            }
+        });
+        tabbarRankLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setChioceItem(1);
+            }
+        });
+        tabbarSearchLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setChioceItem(2);
+            }
+        });
+        tabbarUserLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setChioceItem(3);
+            }
+        });
+    }
+    //定义一个重置所有选项的方法，清除所有样式，排他思想
+    public void clearChioce()
+    {
+        tabbarIndexIcon.setImageResource(R.drawable.tabbar_index_unselector);
+        tabbarIndexLayout.setBackgroundColor(Color.parseColor("#707070"));
+        tabbarIndexText.setTextColor(Color.parseColor("#707070"));
+
+        tabbarRankIcon.setImageResource(R.drawable.tabbar_rank_unselector);
+        tabbarRankLayout.setBackgroundColor(Color.parseColor("#707070"));
+        tabbarRankText.setTextColor(Color.parseColor("#707070"));
+
+        tabbarSearchIcon.setImageResource(R.drawable.tabbar_index_unselector);
+        tabbarSearchLayout.setBackgroundColor(Color.parseColor("#707070"));
+        tabbarSearchText.setTextColor(Color.parseColor("#707070"));
+
+        tabbarUserIcon.setImageResource(R.drawable.tabbar_user_unselector);
+        tabbarUserLayout.setBackgroundColor(Color.parseColor("#707070"));
+        tabbarUserText.setTextColor(Color.parseColor("#707070"));
+    }
+    //定义Tabbar的点击行为
+    public void setChioceItem(int index)
+    {
+        clearChioce();      // 既然是点击选择，那么在点的时候就应该清除一下上一个索引
+
+        // 重置选项+隐藏所有的Fragment
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        Log.d("空指针异常", "setChioceItem: "+transaction);
+
+        hideFragments(transaction);
+
+        switch (index) {
+            case 0:
+                tabbarIndexIcon.setImageResource(R.drawable.tabbar_index_select);
+                tabbarIndexText.setTextColor(Color.parseColor("#E64A19"));
+                if (indexFragment == null) {
+                    indexFragment = new indexFragment();
+                    transaction.replace(R.id.tabbar_index_layout,indexFragment);
+                } else {
+                    transaction.show(indexFragment);
+                }
+                break;
+
+            case 1:
+                tabbarRankIcon.setImageResource(R.drawable.tabbar_rank_select);
+                tabbarRankText.setTextColor(Color.parseColor("#E64A19"));
+                if (rankFragment == null) {
+                    rankFragment = new rankFragment();
+                    transaction.replace(R.id.tabbar_rank_layout,rankFragment);
+                } else {
+                    transaction.show(rankFragment);
+                }
+                break;
+
+            case 2:
+                tabbarSearchIcon.setImageResource(R.drawable.tabbar_search_select);
+                tabbarSearchText.setTextColor(Color.parseColor("#E64A19"));
+                if (searchFragment == null) {
+                    searchFragment = new searchFragment();
+                    transaction.replace(R.id.tabbar_search_layout,searchFragment);
+                } else {
+                    transaction.show(searchFragment);
+                }
+                break;
+
+            case 3:
+                tabbarUserIcon.setImageResource(R.drawable.tabbar_user_select);
+                tabbarUserText.setTextColor(Color.parseColor("#E64A19"));
+                if (userFragment == null) {
+                    userFragment = new userFragment();
+                    transaction.replace(R.id.tabbar_user_layout,userFragment);
+                } else {
+                    transaction.show(userFragment);
+                }
+                break;
+        }
+        transaction.commit();
+    }
+    private void hideFragments(FragmentTransaction transaction)
+    {
+        if (indexFragment != null) {
+            transaction.hide(indexFragment);
+        }
+        if (rankFragment != null) {
+            transaction.hide(rankFragment);
+        }
+        if (searchFragment != null) {
+            transaction.hide(searchFragment);
+        }
+        if (userFragment != null) {
+            transaction.hide(userFragment);
+        }
+    }
+
 }

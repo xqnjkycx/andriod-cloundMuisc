@@ -17,6 +17,139 @@
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!-- Tabbar背景色 -->
+            <FrameLayout
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="#FFFFFF">
+
+                <!-- 首页 -->
+                <RelativeLayout
+                    android:id="@+id/tabbar_index_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:orientation="vertical">
+                        <ImageView
+                            android:id="@+id/tabbar_index_icon"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginBottom="-10dip"
+                            android:layout_gravity="center_horizontal"
+                            android:src="@drawable/tabbar_index_select"/>
+                        <TextView
+                            android:id="@+id/tabbar_index_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="10dp"
+                            android:text="首页"
+                            android:textColor="#7597B3"/>
+                    </LinearLayout>
+                </RelativeLayout>
+                <!-- 预约 -->
+                <RelativeLayout
+                    android:id="@+id/tabbar_rank_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:orientation="vertical">
+                        <ImageView
+                            android:id="@+id/tabbar_rank_icon"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginBottom="-10dip"
+                            android:layout_gravity="center_horizontal"
+                            android:src="@drawable/tabbar_rank_select"/>
+                        <TextView
+                            android:id="@+id/tabbar_rank_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="10dp"
+                            android:text="榜单"
+                            android:textColor="#7597B3"/>
+                    </LinearLayout>
+                </RelativeLayout>
+
+                <!-- 消息 -->
+                <RelativeLayout
+                    android:id="@+id/tabbar_search_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:orientation="vertical">
+                        <ImageView
+                            android:id="@+id/tabbar_search_icon"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginBottom="-10dip"
+                            android:layout_gravity="center_horizontal"
+                            android:src="@drawable/tabbar_search_select"/>
+                        <TextView
+                            android:id="@+id/tabbar_search_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="10dp"
+                            android:text="搜索"
+                            android:textColor="#7597B3"/>
+                    </LinearLayout>
+                </RelativeLayout>
+
+                <!-- 我的 -->
+                <RelativeLayout
+                    android:id="@+id/tabbar_user_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:orientation="vertical">
+                        <ImageView
+                            android:id="@+id/tabbar_user_icon"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginBottom="-10dip"
+                            android:layout_gravity="center_horizontal"
+                            android:src="@drawable/tabbar_user_select"/>
+                        <TextView
+                            android:id="@+id/tabbar_user_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="10dp"
+                            android:text="我的"
+                            android:textColor="#7597B3"/>
+                    </LinearLayout>
+                </RelativeLayout>
+            </LinearLayout>
+        </LinearLayout>
     </FrameLayout>
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
