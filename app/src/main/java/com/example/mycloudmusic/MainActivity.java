@@ -14,9 +14,11 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -55,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private Fragment searchFragment;
     private Fragment userFragment;
 
-    FragmentManager fragmentManager = getSupportFragmentManager();
+    FragmentManager fragmentManager ;
 
 
     @Override
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         Glide.with(MainActivity.this).load(backgroundUrl).into(navHeaderBg);
         avatarName.setText(nickName);
         //初始化tabbaer
+        fragmentManager = getSupportFragmentManager();
         tabbarInitView();
     }
     //加载Toolbar的布局
@@ -148,55 +151,54 @@ public class MainActivity extends AppCompatActivity {
                 setChioceItem(3);
             }
         });
+        //默认首页被选中
+        setChioceItem(0);
     }
     //定义一个重置所有选项的方法，清除所有样式，排他思想
     public void clearChioce()
     {
         tabbarIndexIcon.setImageResource(R.drawable.tabbar_index_unselector);
-        tabbarIndexLayout.setBackgroundColor(Color.parseColor("#707070"));
+        tabbarIndexLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
         tabbarIndexText.setTextColor(Color.parseColor("#707070"));
 
         tabbarRankIcon.setImageResource(R.drawable.tabbar_rank_unselector);
-        tabbarRankLayout.setBackgroundColor(Color.parseColor("#707070"));
+        tabbarRankLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
         tabbarRankText.setTextColor(Color.parseColor("#707070"));
 
-        tabbarSearchIcon.setImageResource(R.drawable.tabbar_index_unselector);
-        tabbarSearchLayout.setBackgroundColor(Color.parseColor("#707070"));
+        tabbarSearchIcon.setImageResource(R.drawable.tabbar_search_unselector);
+        tabbarSearchLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
         tabbarSearchText.setTextColor(Color.parseColor("#707070"));
 
         tabbarUserIcon.setImageResource(R.drawable.tabbar_user_unselector);
-        tabbarUserLayout.setBackgroundColor(Color.parseColor("#707070"));
+        tabbarUserLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
         tabbarUserText.setTextColor(Color.parseColor("#707070"));
     }
     //定义Tabbar的点击行为
     public void setChioceItem(int index)
     {
         clearChioce();      // 既然是点击选择，那么在点的时候就应该清除一下上一个索引
-
         // 重置选项+隐藏所有的Fragment
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        Log.d("空指针异常", "setChioceItem: "+transaction);
-
         hideFragments(transaction);
-
         switch (index) {
             case 0:
                 tabbarIndexIcon.setImageResource(R.drawable.tabbar_index_select);
                 tabbarIndexText.setTextColor(Color.parseColor("#E64A19"));
                 if (indexFragment == null) {
                     indexFragment = new indexFragment();
-                    transaction.replace(R.id.tabbar_index_layout,indexFragment);
+                    transaction.add(R.id.content,indexFragment);
                 } else {
                     transaction.show(indexFragment);
                 }
                 break;
 
             case 1:
+
                 tabbarRankIcon.setImageResource(R.drawable.tabbar_rank_select);
                 tabbarRankText.setTextColor(Color.parseColor("#E64A19"));
                 if (rankFragment == null) {
                     rankFragment = new rankFragment();
-                    transaction.replace(R.id.tabbar_rank_layout,rankFragment);
+                    transaction.add(R.id.content,rankFragment);
                 } else {
                     transaction.show(rankFragment);
                 }
@@ -207,7 +209,8 @@ public class MainActivity extends AppCompatActivity {
                 tabbarSearchText.setTextColor(Color.parseColor("#E64A19"));
                 if (searchFragment == null) {
                     searchFragment = new searchFragment();
-                    transaction.replace(R.id.tabbar_search_layout,searchFragment);
+                    Log.d("布局为空白", "setChioceItem: "+ searchFragment);
+                    transaction.add(R.id.content,searchFragment);
                 } else {
                     transaction.show(searchFragment);
                 }
@@ -218,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
                 tabbarUserText.setTextColor(Color.parseColor("#E64A19"));
                 if (userFragment == null) {
                     userFragment = new userFragment();
-                    transaction.replace(R.id.tabbar_user_layout,userFragment);
+                    transaction.add(R.id.content,userFragment);
                 } else {
                     transaction.show(userFragment);
                 }

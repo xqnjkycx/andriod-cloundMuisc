@@ -15,8 +15,3 @@ public class indexFragment extends Fragment {
         return v;
     }
 }
-//public class TestFragment1 extends Fragment
-//{
-//    @Override
-
-//}
