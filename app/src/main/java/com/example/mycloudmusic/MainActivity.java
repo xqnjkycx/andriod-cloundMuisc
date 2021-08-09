@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.Resource;
 import com.example.component.Personalized;
 import com.example.fragment.indexFragment;
 import com.example.fragment.rankFragment;
@@ -52,13 +54,12 @@ public class MainActivity extends AppCompatActivity {
     private ImageView tabbarUserIcon;
     private TextView tabbarUserText;
 
-    private Fragment indexFragment;
+    private   Fragment indexFragment;
     private Fragment rankFragment;
     private Fragment searchFragment;
     private Fragment userFragment;
 
     FragmentManager fragmentManager ;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
@@ -160,20 +161,17 @@ public class MainActivity extends AppCompatActivity {
         tabbarIndexIcon.setImageResource(R.drawable.tabbar_index_unselector);
         tabbarIndexLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
         tabbarIndexText.setTextColor(Color.parseColor("#707070"));
-
         tabbarRankIcon.setImageResource(R.drawable.tabbar_rank_unselector);
         tabbarRankLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
         tabbarRankText.setTextColor(Color.parseColor("#707070"));
-
         tabbarSearchIcon.setImageResource(R.drawable.tabbar_search_unselector);
         tabbarSearchLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
         tabbarSearchText.setTextColor(Color.parseColor("#707070"));
-
         tabbarUserIcon.setImageResource(R.drawable.tabbar_user_unselector);
         tabbarUserLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
         tabbarUserText.setTextColor(Color.parseColor("#707070"));
     }
-    //定义Tabbar的点击行为
+    //定义点击行为
     public void setChioceItem(int index)
     {
         clearChioce();      // 既然是点击选择，那么在点的时候就应该清除一下上一个索引
@@ -209,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
                 tabbarSearchText.setTextColor(Color.parseColor("#E64A19"));
                 if (searchFragment == null) {
                     searchFragment = new searchFragment();
-                    Log.d("布局为空白", "setChioceItem: "+ searchFragment);
                     transaction.add(R.id.content,searchFragment);
                 } else {
                     transaction.show(searchFragment);
@@ -244,5 +241,4 @@ public class MainActivity extends AppCompatActivity {
             transaction.hide(userFragment);
         }
     }
-
 }
