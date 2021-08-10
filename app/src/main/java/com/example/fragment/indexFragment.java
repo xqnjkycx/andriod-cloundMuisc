@@ -19,8 +19,10 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.Adapter.HotPopularAdapter;
 import com.example.Adapter.SongListAdapter;
 import com.example.bean.BannerBean;
+import com.example.bean.HotPopularBean;
 import com.example.bean.SongListBean;
 import com.example.mycloudmusic.R;
 import com.example.tools.HttpRequestTool;
@@ -36,7 +38,7 @@ import com.youth.banner.adapter.BannerImageAdapter;
 import com.youth.banner.holder.BannerImageHolder;
 import com.youth.banner.indicator.CircleIndicator;
 import com.example.gsonClass.personlizedListSongClass;
-
+import com.example.gsonClass.HotPopularClass;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -47,6 +49,8 @@ public class indexFragment extends Fragment  {
     private List<BannerBean> pics =  new ArrayList<>() ;
     //歌单数据List
     private List<SongListBean> songList = new ArrayList<>();
+    //热门流行List
+    private List<HotPopularBean> hotPopularList = new ArrayList<>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.index_fragment,container,false);
@@ -59,8 +63,8 @@ public class indexFragment extends Fragment  {
         fragmentContext = getContext();
         Log.d("fragment上下文",fragmentContext+"");
         initBannerData();
-        //初始化推荐歌单
         initPersonalized();
+        initHotPopular();
     }
 
     @Override
@@ -120,22 +124,35 @@ public class indexFragment extends Fragment  {
             }
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            }
+        });
+    }
+    //请求并处理热门流行歌单的网络数据
+    private void initHotPopular(){
+        String url = "http://10.0.2.2:3000/top/playlist?limit=8&order=hot";
+        HttpRequestTool.get(url,new okhttp3.Callback(){
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseDate = response.body().string();
+                Gson gson = new Gson();
+                HotPopularClass hotpopular = gson.fromJson(responseDate,HotPopularClass.class);
+                List<HotPopularClass.PlaylistsDTO> hotpopularList = hotpopular.getPlaylists();
+                for(HotPopularClass.PlaylistsDTO item:hotpopularList){
+                    hotPopularList.add(new HotPopularBean(item.getName(),item.getCoverImgUrl()));
+                    Message message = new Message();
+                    message.what = 3;
+                    handler.sendMessage(message);
+                }
+            }
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
 
             }
         });
     }
-    //绘制personalizedUI
-    private void drawPersonalized(){
-        RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.personalized_songlist_recycler_view);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(fragmentContext);
-        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        recyclerView.setLayoutManager(layoutManager);
-        SongListAdapter adapter = new SongListAdapter(songList);
-        recyclerView.setAdapter(adapter);
-    }
+
     //绘制bannerUI
     public void drawBanner(){
-        //初始化banner
         banner = (Banner) getActivity().findViewById(R.id.banner);
         banner.setAdapter(new BannerImageAdapter<BannerBean>(pics) {
             public void onBindView(BannerImageHolder holder, BannerBean data, int position, int size) {
@@ -147,6 +164,24 @@ public class indexFragment extends Fragment  {
         }).addBannerLifecycleObserver(this).setIndicator(new CircleIndicator(fragmentContext));
         banner.start();
     }
+    //绘制personalizedUI
+    private void drawPersonalized(){
+        RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.personalized_songlist_recycler_view);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(fragmentContext);
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recyclerView.setLayoutManager(layoutManager);
+        SongListAdapter adapter = new SongListAdapter(songList);
+        recyclerView.setAdapter(adapter);
+    }
+    //绘制hotPopularUI
+    private void drawHotPopular(){
+        RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.hot_popular_recycler_view);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(fragmentContext);
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recyclerView.setLayoutManager(layoutManager);
+        HotPopularAdapter adapter = new HotPopularAdapter(hotPopularList);
+        recyclerView.setAdapter(adapter);
+    }
     //切回主线程进行UI操作
     private Handler handler = new Handler(){
         public void handleMessage(Message msg){
@@ -156,6 +191,9 @@ public class indexFragment extends Fragment  {
                     break;
                 case 2:
                     drawBanner();
+                    break;
+                case 3:
+                    drawHotPopular();
                     break;
                 default:
                     break;

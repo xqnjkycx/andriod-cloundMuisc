@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -6,38 +8,69 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-    <!--轮播图搭建-->
-    <com.youth.banner.Banner
-        android:id="@+id/banner"
-        android:layout_marginRight="15dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="15dp"
-        android:layout_width="match_parent"
-        android:layout_height="160dp"
-        app:banner_indicator_selected_width="7dp"
-        app:banner_indicator_selected_color="#E64A19"
-        app:banner_indicator_normal_color="@color/white"
-        app:banner_radius="20dp" />
-    <!--横向歌单推荐板块-->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginBottom="10dp"
-        android:background="#E0E0E0"/>
-    <TextView
-        android:text="歌单推荐"
-        android:textSize="18sp"
-        android:textColor="@color/black"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginBottom="10dp"
-        />
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/personalized_songlist_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="140dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp" />
+    <androidx.core.widget.NestedScrollView
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <!--轮播图搭建-->
+            <com.youth.banner.Banner
+                android:id="@+id/banner"
+                android:layout_marginRight="15dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                app:banner_indicator_selected_width="7dp"
+                app:banner_indicator_selected_color="#E64A19"
+                app:banner_indicator_normal_color="@color/white"
+                app:banner_radius="20dp" />
+            <!--横向歌单推荐板块-->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginBottom="10dp"
+                android:background="#E0E0E0"/>
+            <TextView
+                android:text="歌单推荐"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginBottom="10dp"
+                />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/personalized_songlist_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp" />
+            <!--横向热门歌单推荐板块-->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="15dp"
+                android:background="#E0E0E0"/>
+            <TextView
+                android:text="热门流行"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginBottom="10dp"
+                />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/hot_popular_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
 </LinearLayout>

@@ -16,8 +16,8 @@ import com.example.mycloudmusic.R;
 
 import java.util.List;
 
-public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHolder> {
-    private List<SongListBean> mDatas;
+public class HotPopularAdapter extends RecyclerView.Adapter<HotPopularAdapter.ViewHolder> {
+    private List<HotPopularBean> mDatas;
     static class ViewHolder extends RecyclerView.ViewHolder{
         ImageView songListImage;
         TextView songListName;
@@ -27,7 +27,7 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
             songListName = (TextView) view.findViewById(R.id.songlist_item_name);
         }
     }
-    public SongListAdapter(List<SongListBean> list){
+    public HotPopularAdapter(List<HotPopularBean> list){
         mDatas = list;
     }
     public ViewHolder onCreateViewHolder(ViewGroup parent,int viewType){
@@ -37,11 +37,11 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
         return holder;
     }
     public void onBindViewHolder(ViewHolder holder,int position){
-        SongListBean item = mDatas.get(position);
+        HotPopularBean item = mDatas.get(position);
         Glide.with(holder.itemView)
-                .load(item.getSongListPics())
+                .load(item.getPicUrl())
                 .into(holder.songListImage);
-       holder.songListName.setText(item.getSongListName());
+        holder.songListName.setText(item.getName());
     }
 
     @Override
