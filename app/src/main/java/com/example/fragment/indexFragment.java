@@ -1,13 +1,17 @@
 package com.example.fragment;
 
 
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
@@ -27,9 +31,11 @@ import com.youth.banner.Banner;
 import com.youth.banner.adapter.BannerImageAdapter;
 import com.youth.banner.holder.BannerImageHolder;
 import com.youth.banner.indicator.CircleIndicator;
+import com.youth.banner.transformer.ZoomOutPageTransformer;
 
 
 public class indexFragment extends Fragment  {
+    private Banner banner;
     private List<BannerBean> pics =  new ArrayList<>() ;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,18 +63,34 @@ public class indexFragment extends Fragment  {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        useBanner();
+    public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
-    public void useBanner(){
-        Banner banner = (Banner) getActivity().findViewById(R.id.banner);
+    @Override
+    public void onStart() {
+        super.onStart();
+        banner = (Banner) getActivity().findViewById(R.id.banner);
         banner.setAdapter(new BannerImageAdapter<BannerBean>(pics) {
             public void onBindView(BannerImageHolder holder, BannerBean data, int position, int size) {
-                Glide.with(getContext()).load(data.getUrl()).apply(RequestOptions.bitmapTransform(new RoundedCorners(300))).into(holder.imageView);
+                Glide.with(holder.imageView)
+                        .load(data.getUrl())
+                        .apply(RequestOptions.bitmapTransform(new RoundedCorners(20)))
+                        .into(holder.imageView);
             }
+        }).addBannerLifecycleObserver(this).setIndicator(new CircleIndicator(getContext()));
+        banner.start();
+    }
 
-        }).addBannerLifecycleObserver(this);
+    @Override
+    public void onStop() {
+        super.onStop();
+        banner.stop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        banner.destroy();
     }
 }
