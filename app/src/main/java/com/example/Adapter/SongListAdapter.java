@@ -37,11 +37,10 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
     }
     public void onBindViewHolder(ViewHolder holder,int position){
         SongListBean item = mDatas.get(position);
-        holder.songListName.setText(item.getSongListName());
         Glide.with(holder.itemView)
                 .load(item.getSongListPics())
                 .into(holder.songListImage);
-        Log.d("执行了吗", "onBindViewHolder: ");
+       holder.songListName.setText(item.getSongListName());
     }
 
     @Override

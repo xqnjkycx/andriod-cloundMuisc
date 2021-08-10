@@ -50,7 +50,6 @@ public class indexFragment extends Fragment  {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.index_fragment,container,false);
-        initBannerData();
         return v;
     }
 
@@ -59,6 +58,7 @@ public class indexFragment extends Fragment  {
         super.onCreate(savedInstanceState);
         fragmentContext = getContext();
         Log.d("fragment上下文",fragmentContext+"");
+        initBannerData();
         //初始化推荐歌单
         initPersonalized();
     }
@@ -66,17 +66,6 @@ public class indexFragment extends Fragment  {
     @Override
     public void onStart() {
         super.onStart();
-        //初始化banner
-        banner = (Banner) getActivity().findViewById(R.id.banner);
-        banner.setAdapter(new BannerImageAdapter<BannerBean>(pics) {
-            public void onBindView(BannerImageHolder holder, BannerBean data, int position, int size) {
-                Glide.with(holder.imageView)
-                        .load(data.getUrl())
-                        .apply(RequestOptions.bitmapTransform(new RoundedCorners(20)))
-                        .into(holder.imageView);
-            }
-        }).addBannerLifecycleObserver(this).setIndicator(new CircleIndicator(fragmentContext));
-        banner.start();;
     }
 
     @Override
@@ -102,6 +91,9 @@ public class indexFragment extends Fragment  {
                 List<bannerClass.BannersDTO> bannersDTOList = banners.getBanners();
                 for (bannerClass.BannersDTO bannerItem : bannersDTOList){
                     pics.add(new BannerBean(bannerItem.getPic()));
+                    Message message = new Message();
+                    message.what = 2;
+                    handler.sendMessage(message);
                 }
             }
             @Override
@@ -111,7 +103,7 @@ public class indexFragment extends Fragment  {
     }
     //请求并处理推荐歌单的网络数据
     private void initPersonalized(){
-        String url = "http://10.0.2.2:3000/personalized?limit=6";
+        String url = "http://10.0.2.2:3000/personalized?limit=8";
         HttpRequestTool.get(url,new okhttp3.Callback(){
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
@@ -141,12 +133,29 @@ public class indexFragment extends Fragment  {
         SongListAdapter adapter = new SongListAdapter(songList);
         recyclerView.setAdapter(adapter);
     }
+    //绘制bannerUI
+    public void drawBanner(){
+        //初始化banner
+        banner = (Banner) getActivity().findViewById(R.id.banner);
+        banner.setAdapter(new BannerImageAdapter<BannerBean>(pics) {
+            public void onBindView(BannerImageHolder holder, BannerBean data, int position, int size) {
+                Glide.with(holder.imageView)
+                        .load(data.getUrl())
+                        .apply(RequestOptions.bitmapTransform(new RoundedCorners(20)))
+                        .into(holder.imageView);
+            }
+        }).addBannerLifecycleObserver(this).setIndicator(new CircleIndicator(fragmentContext));
+        banner.start();
+    }
     //切回主线程进行UI操作
     private Handler handler = new Handler(){
         public void handleMessage(Message msg){
             switch (msg.what){
                 case 1:
                     drawPersonalized();
+                    break;
+                case 2:
+                    drawBanner();
                     break;
                 default:
                     break;
