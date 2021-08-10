@@ -29,7 +29,7 @@ public class Personalized extends componentHandle {
                 List<personalizedClass.ResultDTO> resList = personalized.getResult();
                 for(personalizedClass.ResultDTO obj : resList){
                     String name = obj.getName();
-                    LogTool.d("推荐出来的歌单的歌单名","response"+name);
+                   // LogTool.d("推荐出来的歌单的歌单名","response"+name);
                 }
             }
             @Override
