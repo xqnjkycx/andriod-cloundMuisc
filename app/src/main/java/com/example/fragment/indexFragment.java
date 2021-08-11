@@ -138,7 +138,7 @@ public class indexFragment extends Fragment  {
                 HotPopularClass hotpopular = gson.fromJson(responseDate,HotPopularClass.class);
                 List<HotPopularClass.PlaylistsDTO> hotpopularList = hotpopular.getPlaylists();
                 for(HotPopularClass.PlaylistsDTO item:hotpopularList){
-                    hotPopularList.add(new HotPopularBean(item.getName(),item.getCoverImgUrl()));
+                    hotPopularList.add(new HotPopularBean(item.getName(),item.getCoverImgUrl(),item.getId()));
                     Message message = new Message();
                     message.what = 3;
                     handler.sendMessage(message);

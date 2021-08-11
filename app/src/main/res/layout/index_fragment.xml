@@ -45,7 +45,7 @@
                     android:id="@+id/personalized_songlist_recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="140dp"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginLeft="15dp"
                     android:layout_marginRight="15dp" />
             <!--横向热门歌单推荐板块-->
@@ -69,6 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="140dp"
                 android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginRight="15dp" />
             <View
                 android:layout_width="match_parent"

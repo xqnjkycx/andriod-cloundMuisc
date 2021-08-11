@@ -12,7 +12,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.Adapter.SongListDetailAdapter;
@@ -45,6 +48,13 @@ public class SongListDetailActivity extends AppCompatActivity {
         initToolBar( picUrl,name);
         initSongListDetail(id);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        drawUI();
+    }
+
     //初始化ToolBar
     private void initToolBar(String picUrl,String name){
         Toolbar toolbar = (Toolbar) findViewById(R.id.songList_detail_toolbar);
@@ -106,10 +116,9 @@ public class SongListDetailActivity extends AppCompatActivity {
     }
     //绘制歌单详情滚动模块
     private void drawUI(){
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.songList_detail_recycler);
-        Log.d("TAG",""+recyclerView);
+        Log.d("list的长度",""+detailList.size());
+        RecyclerView  recyclerView = (RecyclerView) findViewById(R.id.songList_detail_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        Log.d("TAG",layoutManager+"");
         recyclerView.setLayoutManager(layoutManager);
         SongListDetailAdapter adapter = new SongListDetailAdapter(detailList);
         recyclerView.setAdapter(adapter);
@@ -122,7 +131,6 @@ public class SongListDetailActivity extends AppCompatActivity {
                     //do some UI
                     drawUI();
                     break;
-
                 default:
                     break;
             }

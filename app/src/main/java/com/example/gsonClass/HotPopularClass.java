@@ -15,6 +15,7 @@ public class HotPopularClass {
     public static class PlaylistsDTO {
         private String name;
         private String coverImgUrl;
+        private long id;
 
         public String getName() {
             return name;
@@ -30,6 +31,9 @@ public class HotPopularClass {
         public void setCoverImgUrl(String coverImgUrl) {
             this.coverImgUrl = coverImgUrl;
         }
-
+        public long getId(){return id;}
+        public void setId(long id){
+            this.id = id;
+        }
     }
 }
