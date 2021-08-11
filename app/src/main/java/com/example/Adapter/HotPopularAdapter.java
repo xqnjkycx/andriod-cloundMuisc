@@ -1,3 +1,5 @@
+//热门流行的适配器
+
 package com.example.Adapter;
 
 import android.util.Log;

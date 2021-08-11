@@ -116,7 +116,7 @@ public class indexFragment extends Fragment  {
                 personlizedListSongClass personalized = gson.fromJson(responseData,personlizedListSongClass.class);
                 List<personlizedListSongClass.ResultDTO> personalizedSongList = personalized.getResult();
                 for (personlizedListSongClass.ResultDTO item:personalizedSongList){
-                    songList.add(new SongListBean(item.getName(),item.getPicUrl()));
+                    songList.add(new SongListBean(item.getName(),item.getPicUrl(),item.getId()));
                     Message message = new Message();
                     message.what = 1;
                     handler.sendMessage(message);

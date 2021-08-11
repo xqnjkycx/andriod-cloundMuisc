@@ -1,3 +1,4 @@
+//轮播图适配器
 package com.example.Adapter;
 
 import android.view.ViewGroup;
