@@ -10,8 +10,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.example.tools.HttpRequestTool;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
@@ -36,18 +39,22 @@ public class SongListDetailActivity extends AppCompatActivity {
         String picUrl = intent.getStringExtra("picUrl");
         String name = intent.getStringExtra("name");
         long id = intent.getLongExtra("id",0);
-        initToolBar();
+        initToolBar( picUrl,name);
         initSongListDetail(id);
     }
     //初始化ToolBar
-    private void initToolBar(){
+    private void initToolBar(String picUrl,String name){
         Toolbar toolbar = (Toolbar) findViewById(R.id.songList_detail_toolbar);
+        CollapsingToolbarLayout collapsingToolbar =
+                (CollapsingToolbarLayout) findViewById(R.id.songList_detail_collapsing_toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if(actionBar!=null){
             actionBar.setDisplayHomeAsUpEnabled(true);
-
+            actionBar.setHomeAsUpIndicator(R.drawable.back);
         }
+        ImageView imgView = (ImageView) findViewById(R.id.songList_detail_bg);
+        Glide.with(imgView.getContext()).load(picUrl).into(imgView);
     }
     // 按钮后退功能
     public boolean onOptionsItemSelected(MenuItem item){
