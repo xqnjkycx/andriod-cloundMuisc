@@ -3,6 +3,8 @@ package com.example.mycloudmusic;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.example.Adapter.SongListDetailAdapter;
 import com.example.tools.HttpRequestTool;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.gson.Gson;
@@ -76,7 +79,6 @@ public class SongListDetailActivity extends AppCompatActivity {
                 personalizedDetailGson obj = gson.fromJson(responseData,personalizedDetailGson.class);
                 personalizedDetailGson.PlaylistDTO playlistObj = obj.getPlaylist();
                 List<personalizedDetailGson.PlaylistDTO.TracksDTO> tracks = playlistObj.getTracks();
-                Log.d("TAG",tracks+"");
                 for (personalizedDetailGson.PlaylistDTO.TracksDTO track : tracks){
                     String songName = track.getName();
                     String authorName = null;
@@ -102,12 +104,23 @@ public class SongListDetailActivity extends AppCompatActivity {
             }
         });
     }
+    //绘制歌单详情滚动模块
+    private void drawUI(){
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.songList_detail_recycler);
+        Log.d("TAG",""+recyclerView);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        Log.d("TAG",layoutManager+"");
+        recyclerView.setLayoutManager(layoutManager);
+        SongListDetailAdapter adapter = new SongListDetailAdapter(detailList);
+        recyclerView.setAdapter(adapter);
+    }
     //切回主线程做UI操作
     private Handler handler = new Handler(){
         public void handleMessage(Message msg){
             switch (msg.what){
                 case 1:
                     //do some UI
+                    drawUI();
                     break;
 
                 default:

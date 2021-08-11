@@ -62,7 +62,7 @@
                             android:textColor="#7597B3"/>
                     </LinearLayout>
                 </RelativeLayout>
-                <!-- 预约 -->
+                <!-- 音乐榜 -->
                 <RelativeLayout
                     android:id="@+id/tabbar_rank_layout"
                     android:layout_width="0dp"
@@ -91,7 +91,7 @@
                     </LinearLayout>
                 </RelativeLayout>
 
-                <!-- 消息 -->
+                <!-- 搜索 -->
                 <RelativeLayout
                     android:id="@+id/tabbar_search_layout"
                     android:layout_width="0dp"
