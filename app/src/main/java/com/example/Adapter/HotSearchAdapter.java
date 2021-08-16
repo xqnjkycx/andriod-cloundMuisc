@@ -40,7 +40,7 @@ public class HotSearchAdapter extends RecyclerView.Adapter<HotSearchAdapter.View
                 int position = holder.getAdapterPosition();
                 HotSearchBean item = mDatas.get(position);
                 //在子布局中获取父布局就这样写
-                EditText input = (EditText) ((View) parent.getParent()).findViewById(R.id.input);
+                EditText input = (EditText) ((View) parent.getParent()).findViewById(R.id.searchInput);
                 input.setText(item.getSearchWord());
                 input.requestFocus();
             }

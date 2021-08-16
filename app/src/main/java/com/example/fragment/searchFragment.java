@@ -14,11 +14,17 @@ import android.widget.EditText;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.example.Adapter.HotPopularAdapter;
 import com.example.bean.HotSearchBean;
+import com.example.bean.SearchListBean;
 import com.example.gsonClass.HotSearchClass;
+import com.example.gsonClass.SearchListClass;
 import com.example.mycloudmusic.R;
 import com.example.tools.HttpRequestTool;
 import com.google.gson.Gson;
@@ -33,10 +39,14 @@ import okhttp3.Call;
 import okhttp3.Response;
 
 import com.example.Adapter.HotSearchAdapter;
+import com.example.Adapter.SearchListAdapter;
 
 public class searchFragment extends Fragment {
     private Context fragmentContext;
     private List<HotSearchBean> hotSearchList =  new ArrayList<>() ;
+    private List<SearchListBean> searchResList = new ArrayList<>();
+    private RecyclerView hotSearchRecyclerView;
+    private RecyclerView searchListRecyclerView;
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.search_fragment,container,false);
         return v;
@@ -52,10 +62,15 @@ public class searchFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        hotSearchRecyclerView = (RecyclerView) getActivity().findViewById(R.id.hot_search_detail_recycler_view);
+        searchListRecyclerView = (RecyclerView) getActivity().findViewById(R.id.search_list_recycler);
+        hotSearchRecyclerView.setVisibility(View.VISIBLE);
+        searchListRecyclerView.setVisibility(View.GONE);
+        initSearchInput();
     }
 
     private void initSearchInput(){
-        EditText input = (EditText) getActivity().findViewById(R.id.input);
+        EditText input = (EditText) getActivity().findViewById(R.id.searchInput);
         input.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -74,14 +89,22 @@ public class searchFragment extends Fragment {
                      * 如果输入框里面的文字长度为0，说明没有用户没有输入内容，或者已经删除了所有内容
                      * 那么就不显示searchListFragment
                      */
+                    hotSearchRecyclerView.setVisibility(View.VISIBLE);
+                    searchListRecyclerView.setVisibility(View.GONE);
+
                 }else {
                     /**
                      * 用户输入了部分内容，发起请求，并将请求好的列表放置于输入框之下
                      * */
+                    String url = "http://10.0.2.2:3000/search?keywords="+s;
+                    initSearchList(url);
+                    hotSearchRecyclerView.setVisibility(View.GONE);
+                    searchListRecyclerView.setVisibility(View.VISIBLE);
                 }
             }
         });
     }
+    //初始化热门搜索标签
     private void initHotSearch(){
         String url = "http://10.0.2.2:3000/search/hot/detail";
         HttpRequestTool.get(url,new okhttp3.Callback(){
@@ -104,6 +127,39 @@ public class searchFragment extends Fragment {
             }
         });
     }
+    //初始化搜索列表
+    private void initSearchList(String url){
+        HttpRequestTool.get(url,new okhttp3.Callback(){
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseData = response.body().string();
+                Gson gson = new Gson();
+                SearchListClass obj = gson.fromJson(responseData,SearchListClass.class);
+                SearchListClass.ResultDTO searchList = obj.getResult();
+                List<SearchListClass.ResultDTO.SongsDTO> songs = searchList.getSongs();
+                for(SearchListClass.ResultDTO.SongsDTO item : songs){
+                    String songName = item.getName();
+                    long id = item.getId();
+                    String authorName = "";
+                    List<SearchListClass.ResultDTO.SongsDTO.ArtistsDTO> aritis = item.getArtists();
+                    for (SearchListClass.ResultDTO.SongsDTO.ArtistsDTO item1 : aritis){
+                        if (authorName.length() == 0){
+                            authorName = item1.getName();
+                        }else {
+                            authorName = authorName +" & "+ item1.getName();
+                        }
+                    }
+                    searchResList.add(new SearchListBean(songName,authorName,id));
+                    Message message = new Message();
+                    message.what = 2;
+                    handler.sendMessage(message);
+                }
+            }
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            }
+        });
+    }
     //绘制热搜列表
     private void  drawHotSearch(){
         RecyclerView recyclerView = (RecyclerView) getActivity()
@@ -115,6 +171,14 @@ public class searchFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
     }
+    //绘制搜索结果列表
+    private void drawSearchList(){
+        RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.search_list_recycler);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(fragmentContext);
+        recyclerView.setLayoutManager(layoutManager);
+        SearchListAdapter adapter = new SearchListAdapter(searchResList);
+        recyclerView.setAdapter(adapter);
+    }
     //异步处理机制
     private Handler handler = new Handler(){
         public void handleMessage(Message msg){
@@ -122,6 +186,8 @@ public class searchFragment extends Fragment {
                 case 1:
                     drawHotSearch();
                     break;
+                case 2:
+                    drawSearchList();
                 default:
                     break;
             }
