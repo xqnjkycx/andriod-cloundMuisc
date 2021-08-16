@@ -42,7 +42,7 @@ public class HotSearchAdapter extends RecyclerView.Adapter<HotSearchAdapter.View
                 //在子布局中获取父布局就这样写
                 EditText input = (EditText) ((View) parent.getParent()).findViewById(R.id.searchInput);
                 input.setText(item.getSearchWord());
-                input.requestFocus();
+                input.setSelection(item.getSearchWord().length());
             }
         });
         return holder;

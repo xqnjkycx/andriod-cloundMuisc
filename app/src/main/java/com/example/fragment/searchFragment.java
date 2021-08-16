@@ -96,7 +96,7 @@ public class searchFragment extends Fragment {
                     /**
                      * 用户输入了部分内容，发起请求，并将请求好的列表放置于输入框之下
                      * */
-                    String url = "http://10.0.2.2:3000/search?keywords="+s;
+                    String url = "http://10.0.2.2:3000/search?keywords="+s.toString();
                     initSearchList(url);
                     hotSearchRecyclerView.setVisibility(View.GONE);
                     searchListRecyclerView.setVisibility(View.VISIBLE);
@@ -149,6 +149,7 @@ public class searchFragment extends Fragment {
                             authorName = authorName +" & "+ item1.getName();
                         }
                     }
+                    searchResList.clear();
                     searchResList.add(new SearchListBean(songName,authorName,id));
                     Message message = new Message();
                     message.what = 2;
