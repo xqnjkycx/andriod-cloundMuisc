@@ -76,7 +76,6 @@ public class PhoneLogin extends AppCompatActivity {
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         String responseData = response.body().string();
-                        Log.d("返回的数据",""+responseData);
                         Gson gson = new Gson();
                         loginStatusClass loginRes = gson.fromJson(responseData,loginStatusClass.class);
                         int code = loginRes.getCode();

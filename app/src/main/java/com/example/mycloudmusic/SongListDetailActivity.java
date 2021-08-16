@@ -52,7 +52,7 @@ public class SongListDetailActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        drawUI();
+//        drawUI();
     }
 
     //初始化ToolBar
@@ -116,7 +116,6 @@ public class SongListDetailActivity extends AppCompatActivity {
     }
     //绘制歌单详情滚动模块
     private void drawUI(){
-        Log.d("list的长度",""+detailList.size());
         RecyclerView  recyclerView = (RecyclerView) findViewById(R.id.songList_detail_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -128,7 +127,6 @@ public class SongListDetailActivity extends AppCompatActivity {
         public void handleMessage(Message msg){
             switch (msg.what){
                 case 1:
-                    //do some UI
                     drawUI();
                     break;
                 default:

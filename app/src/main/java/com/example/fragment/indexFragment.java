@@ -61,7 +61,6 @@ public class indexFragment extends Fragment  {
     public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fragmentContext = getContext();
-        Log.d("fragment上下文",fragmentContext+"");
         initBannerData();
         initPersonalized();
         initHotPopular();
@@ -146,7 +145,6 @@ public class indexFragment extends Fragment  {
             }
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
             }
         });
     }
