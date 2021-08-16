@@ -69,7 +69,16 @@ public class searchFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-
+                if(s.length() == 0){
+                    /**
+                     * 如果输入框里面的文字长度为0，说明没有用户没有输入内容，或者已经删除了所有内容
+                     * 那么就不显示searchListFragment
+                     */
+                }else {
+                    /**
+                     * 用户输入了部分内容，发起请求，并将请求好的列表放置于输入框之下
+                     * */
+                }
             }
         });
     }
@@ -100,7 +109,7 @@ public class searchFragment extends Fragment {
         RecyclerView recyclerView = (RecyclerView) getActivity()
                 .findViewById(R.id.hot_search_detail_recycler_view);
         StaggeredGridLayoutManager layoutManager = new
-                StaggeredGridLayoutManager(4,StaggeredGridLayoutManager.HORIZONTAL);
+                StaggeredGridLayoutManager(5,StaggeredGridLayoutManager.HORIZONTAL);
         recyclerView.setLayoutManager(layoutManager);
         HotSearchAdapter adapter = new HotSearchAdapter(hotSearchList);
         recyclerView.setAdapter(adapter);

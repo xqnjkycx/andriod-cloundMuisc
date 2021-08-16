@@ -25,9 +25,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!--  android:windowSoftInputMode="adjustNothing" 可以让键盘弹出的时候不挤压界面 -->
         <activity
             android:name=".MainActivity"
-            android:label="网易云音乐"></activity>
+            android:label="网易云音乐"
+            android:windowSoftInputMode="adjustNothing"
+            ></activity>
     </application>
 
 </manifest>
