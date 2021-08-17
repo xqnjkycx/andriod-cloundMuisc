@@ -43,7 +43,10 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
                 EditText input = (EditText) ((View) parent.getParent())
                         .findViewById(R.id.searchInput);
                 String historySearchName = input.getText().toString();
+                //再增加新的搜索历史之前，先查询是否已存在数据，然后把它删了。
+                LitePal.deleteAll(HistorySearch.class,"historySearchName = ?",historySearchName);
                 HistorySearch obj = new HistorySearch();
+                //查询是否存在已经搜索了该词语
                 obj.setHistorySearchName(historySearchName);
                 obj.save();
                 List<HistorySearch> list = LitePal.findAll(HistorySearch.class);
@@ -54,7 +57,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
                 RecyclerView recyclerView = (RecyclerView) ((View) parent.getParent())
                         .findViewById(R.id.history_search_recycler_view);
                 StaggeredGridLayoutManager layoutManager = new
-                        StaggeredGridLayoutManager(5,StaggeredGridLayoutManager.HORIZONTAL);
+                        StaggeredGridLayoutManager(4,StaggeredGridLayoutManager.VERTICAL);
                 recyclerView.setLayoutManager(layoutManager);
                 HistorySearchAdapter adapter = new HistorySearchAdapter(history);
                 recyclerView.setAdapter(adapter);

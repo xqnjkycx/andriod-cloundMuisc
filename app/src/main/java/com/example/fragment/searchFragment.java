@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -74,6 +75,18 @@ public class searchFragment extends Fragment {
         searchListRecyclerView.setVisibility(View.GONE);
         drawHistroySearch();
         initSearchInput();
+        iniClearHistory();
+    }
+
+    private void iniClearHistory(){
+        TextView clearHistory = (TextView) getActivity().findViewById(R.id.clear_history);
+        clearHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LitePal.deleteAll(HistorySearch.class);
+                drawHistroySearch();
+            }
+        });
     }
 
     private void initSearchInput(){
@@ -197,7 +210,7 @@ public class searchFragment extends Fragment {
         RecyclerView recyclerView = (RecyclerView) getActivity()
                 .findViewById(R.id.history_search_recycler_view);
         StaggeredGridLayoutManager layoutManager = new
-                StaggeredGridLayoutManager(5,StaggeredGridLayoutManager.HORIZONTAL);
+                StaggeredGridLayoutManager(4,StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
         HistorySearchAdapter adapter = new HistorySearchAdapter(history);
         recyclerView.setAdapter(adapter);
