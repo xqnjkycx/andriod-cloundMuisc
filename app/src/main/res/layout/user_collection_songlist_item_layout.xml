@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal">
     <androidx.cardview.widget.CardView
@@ -22,18 +24,17 @@
             android:id="@+id/user_collecton_songList_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left"
             android:text="LOLOLOLOLO"
             android:textColor="@color/black"
+            android:maxLines="1"
             android:layout_marginTop="5dp"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:paddingLeft="10dp" />
         <TextView
             android:id="@+id/user_collection_songList_description"
             android:layout_gravity="left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="125首,by ljkljk"
             android:layout_marginTop="5dp"
             android:paddingLeft="10dp"
             />

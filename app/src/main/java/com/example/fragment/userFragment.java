@@ -17,11 +17,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.example.Adapter.SearchListAdapter;
+import com.example.Adapter.UserCollectionSongListAdapter;
+import com.example.bean.UserCollectionSongListBean;
 import com.example.gsonClass.UserInfoClass;
 import com.example.mycloudmusic.MainActivity;
 import com.example.mycloudmusic.R;
@@ -31,10 +36,13 @@ import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import jp.wasabeef.glide.transformations.BlurTransformation;
 import okhttp3.Call;
 import okhttp3.Response;
+import com.example.gsonClass.UserCollectionSongListGson;
 
 public class userFragment extends Fragment {
     private String nickName;
@@ -44,6 +52,9 @@ public class userFragment extends Fragment {
     private String fans;
     private String follows;
     private String listenSongs;
+
+    private List<UserCollectionSongListBean> collectionSongList = new ArrayList<>();
+
     private long id;
 
     private Context fragmentContext;
@@ -57,6 +68,7 @@ public class userFragment extends Fragment {
         super.onCreate(savedInstanceState);
         fragmentContext = getContext();
         initUserInfo();
+        initUserCollectionSongList();
     }
 
     @Override
@@ -96,7 +108,38 @@ public class userFragment extends Fragment {
     }
     //初始化用户收藏歌单数据
     private void initUserCollectionSongList(){
+        String url = "http://10.0.2.2:3000/user/playlist?uid="+id;
+        HttpRequestTool.get(url,new okhttp3.Callback(){
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String resData = response.body().string();
+                Gson gson = new Gson();
+                UserCollectionSongListGson res = gson.fromJson(resData,UserCollectionSongListGson.class);
+                List<UserCollectionSongListGson.PlaylistDTO> playList
+                        = res.getPlaylist();
+                String coverImgUrl;
+                int trackCount;
+                String name;
+                long id;
+                String nickName;
+                for(UserCollectionSongListGson.PlaylistDTO item : playList){
+                    coverImgUrl = item.getCoverImgUrl();
+                    trackCount = item.getTrackCount();
+                    name = item.getName();
+                    id = item.getId();
+                    UserCollectionSongListGson.PlaylistDTO.CreatorDTO creators = item.getCreator();
+                    nickName = creators.getNickname();
+                    collectionSongList.add(new UserCollectionSongListBean(trackCount,coverImgUrl,nickName,name,id));
+                }
+                Message message = new Message();
+                message.what = 2;
+                handler.sendMessage(message);
 
+            }
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            }
+        });
     }
     //绘制用户基本信息UI界面
     private void drawUserInfo(){
@@ -129,7 +172,16 @@ public class userFragment extends Fragment {
     }
     //绘制用户收藏歌单界面
     private void drawUserCollectionSongList(){
-        
+//        RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.search_list_recycler);
+//        LinearLayoutManager layoutManager = new LinearLayoutManager(fragmentContext);
+//        recyclerView.setLayoutManager(layoutManager);
+//        SearchListAdapter adapter = new SearchListAdapter(searchResList);
+//        recyclerView.setAdapter(adapter);
+        RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.user_collection_songList_recycler);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(fragmentContext);
+        recyclerView.setLayoutManager(layoutManager);
+        UserCollectionSongListAdapter adapter = new UserCollectionSongListAdapter(collectionSongList);
+        recyclerView.setAdapter(adapter);
     }
     //异步处理流程
     private Handler handler = new Handler(){
@@ -138,6 +190,8 @@ public class userFragment extends Fragment {
                 case 1:
                     drawUserInfo();
                     break;
+                case 2:
+                    drawUserCollectionSongList();
                 default:
                     break;
             }
