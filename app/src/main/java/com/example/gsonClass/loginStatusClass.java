@@ -69,7 +69,7 @@ public class loginStatusClass{
     }
 
     public static class AccountDTO {
-        private Integer id;
+        private long id;
         private String userName;
         private Integer type;
         private Integer status;
@@ -84,11 +84,11 @@ public class loginStatusClass{
         private Long viptypeVersion;
         private Boolean anonimousUser;
 
-        public Integer getId() {
+        public long getId() {
             return id;
         }
 
-        public void setId(Integer id) {
+        public void setId(long id) {
             this.id = id;
         }
 

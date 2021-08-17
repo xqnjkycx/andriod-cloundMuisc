@@ -81,6 +81,7 @@ public class PhoneLogin extends AppCompatActivity {
                         int code = loginRes.getCode();
                         if (code == 200){
                             finish();
+                            long userId = loginRes.getAccount().getId();
                             String nickName = loginRes.getProfile().getNickname();
                             String avatarUrl = loginRes.getProfile().getAvatarUrl();
                             String backgroundUrl = loginRes.getProfile().getBackgroundUrl();
@@ -88,6 +89,7 @@ public class PhoneLogin extends AppCompatActivity {
                             intent.putExtra("nickName",nickName);
                             intent.putExtra("avatarUrl",avatarUrl);
                             intent.putExtra("backgroundUrl",backgroundUrl);
+                            intent.putExtra("userId",userId);
                             startActivity(intent);
                      } else {
                             Message message = new Message();

@@ -63,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
 
     FragmentManager fragmentManager ;
 
+    private String nickName;
+    private String avatarUrl;
+    private String backgroundUrl;
+    private long userId;
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
@@ -90,9 +94,10 @@ public class MainActivity extends AppCompatActivity {
         NavigationView navView = (NavigationView) findViewById(R.id.nav_view);
         View headerView = navView.getHeaderView(0);
         Intent intent = getIntent();
-        String nickName = intent.getStringExtra("nickName");
-        String avatarUrl = intent.getStringExtra("avatarUrl");
-        String backgroundUrl = intent.getStringExtra("backgroundUrl");
+         nickName = intent.getStringExtra("nickName");
+         avatarUrl = intent.getStringExtra("avatarUrl");
+         backgroundUrl = intent.getStringExtra("backgroundUrl");
+         userId = intent.getLongExtra("userId",0);
         ImageView navHeaderBg= (ImageView) headerView.findViewById(R.id.nav_header_bg);
         CircleImageView iconHeader = (CircleImageView) headerView.findViewById(R.id.icon_header);
         TextView avatarName = (TextView) headerView.findViewById(R.id.user_name);
@@ -223,6 +228,12 @@ public class MainActivity extends AppCompatActivity {
                 tabbarUserText.setTextColor(Color.parseColor("#E64A19"));
                 if (userFragment == null) {
                     userFragment = new userFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("nickName",nickName);
+                    bundle.putString("avatarUrl",avatarUrl);
+                    bundle.putString("backgroundUrl",backgroundUrl);
+                    bundle.putLong("userId",userId);
+                    userFragment.setArguments(bundle);
                     transaction.add(R.id.content,userFragment);
                 } else {
                     transaction.show(userFragment);
