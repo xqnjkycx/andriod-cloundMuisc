@@ -20,7 +20,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.example.Adapter.HistorySearchAdapter;
 import com.example.Adapter.HotPopularAdapter;
+import com.example.LitePal.HistorySearch;
+import com.example.bean.HistorySearchBean;
 import com.example.bean.HotSearchBean;
 import com.example.bean.SearchListBean;
 import com.example.gsonClass.HotSearchClass;
@@ -30,6 +33,8 @@ import com.example.tools.HttpRequestTool;
 import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
+import org.litepal.LitePal;
+import org.litepal.crud.LitePalSupport;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,8 +50,9 @@ public class searchFragment extends Fragment {
     private Context fragmentContext;
     private List<HotSearchBean> hotSearchList =  new ArrayList<>() ;
     private List<SearchListBean> searchResList = new ArrayList<>();
-    private RecyclerView hotSearchRecyclerView;
+//    private RecyclerView hotSearchRecyclerView;
     private RecyclerView searchListRecyclerView;
+    private View hotAndHistoryView;
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.search_fragment,container,false);
         return v;
@@ -62,10 +68,11 @@ public class searchFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        hotSearchRecyclerView = (RecyclerView) getActivity().findViewById(R.id.hot_search_detail_recycler_view);
+        hotAndHistoryView = (View) getActivity().findViewById(R.id.hot_and_history_view);
         searchListRecyclerView = (RecyclerView) getActivity().findViewById(R.id.search_list_recycler);
-        hotSearchRecyclerView.setVisibility(View.VISIBLE);
+        hotAndHistoryView.setVisibility(View.VISIBLE);
         searchListRecyclerView.setVisibility(View.GONE);
+        drawHistroySearch();
         initSearchInput();
     }
 
@@ -89,7 +96,7 @@ public class searchFragment extends Fragment {
                      * 如果输入框里面的文字长度为0，说明没有用户没有输入内容，或者已经删除了所有内容
                      * 那么就不显示searchListFragment
                      */
-                    hotSearchRecyclerView.setVisibility(View.VISIBLE);
+                    hotAndHistoryView.setVisibility(View.VISIBLE);
                     searchListRecyclerView.setVisibility(View.GONE);
 
                 }else {
@@ -98,13 +105,13 @@ public class searchFragment extends Fragment {
                      * */
                     String url = "http://10.0.2.2:3000/search?keywords="+s.toString();
                     initSearchList(url);
-                    hotSearchRecyclerView.setVisibility(View.GONE);
+                    hotAndHistoryView.setVisibility(View.GONE);
                     searchListRecyclerView.setVisibility(View.VISIBLE);
                 }
             }
         });
     }
-    //初始化热门搜索标签
+    //初始化热门搜索标签数据
     private void initHotSearch(){
         String url = "http://10.0.2.2:3000/search/hot/detail";
         HttpRequestTool.get(url,new okhttp3.Callback(){
@@ -127,7 +134,7 @@ public class searchFragment extends Fragment {
             }
         });
     }
-    //初始化搜索列表
+    //初始化搜索列表数据
     private void initSearchList(String url){
         HttpRequestTool.get(url,new okhttp3.Callback(){
             @Override
@@ -137,6 +144,7 @@ public class searchFragment extends Fragment {
                 SearchListClass obj = gson.fromJson(responseData,SearchListClass.class);
                 SearchListClass.ResultDTO searchList = obj.getResult();
                 List<SearchListClass.ResultDTO.SongsDTO> songs = searchList.getSongs();
+                searchResList.clear();
                 for(SearchListClass.ResultDTO.SongsDTO item : songs){
                     String songName = item.getName();
                     long id = item.getId();
@@ -149,7 +157,6 @@ public class searchFragment extends Fragment {
                             authorName = authorName +" & "+ item1.getName();
                         }
                     }
-                    searchResList.clear();
                     searchResList.add(new SearchListBean(songName,authorName,id));
                     Message message = new Message();
                     message.what = 2;
@@ -178,6 +185,21 @@ public class searchFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(fragmentContext);
         recyclerView.setLayoutManager(layoutManager);
         SearchListAdapter adapter = new SearchListAdapter(searchResList);
+        recyclerView.setAdapter(adapter);
+    }
+    //绘制历史搜索列表
+    private void drawHistroySearch(){
+        List<HistorySearch> list = LitePal.findAll(HistorySearch.class);
+        List<HistorySearchBean> history = new ArrayList<>();
+        for(HistorySearch item:list){
+            history.add(new HistorySearchBean(item.getHistorySearchName()));
+        }
+        RecyclerView recyclerView = (RecyclerView) getActivity()
+                .findViewById(R.id.history_search_recycler_view);
+        StaggeredGridLayoutManager layoutManager = new
+                StaggeredGridLayoutManager(5,StaggeredGridLayoutManager.HORIZONTAL);
+        recyclerView.setLayoutManager(layoutManager);
+        HistorySearchAdapter adapter = new HistorySearchAdapter(history);
         recyclerView.setAdapter(adapter);
     }
     //异步处理机制

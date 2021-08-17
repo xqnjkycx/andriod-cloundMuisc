@@ -20,7 +20,6 @@ public class HotSearchAdapter extends RecyclerView.Adapter<HotSearchAdapter.View
     static class ViewHolder extends RecyclerView.ViewHolder{
         View itemView;
         TextView searchWord;
-        View rootView;
         public ViewHolder(View v){
             super(v);
             itemView = v;
@@ -40,7 +39,8 @@ public class HotSearchAdapter extends RecyclerView.Adapter<HotSearchAdapter.View
                 int position = holder.getAdapterPosition();
                 HotSearchBean item = mDatas.get(position);
                 //在子布局中获取父布局就这样写
-                EditText input = (EditText) ((View) parent.getParent()).findViewById(R.id.searchInput);
+                EditText input = (EditText)   ((View)((View) parent.getParent()).getParent())
+                        .findViewById(R.id.searchInput);
                 input.setText(item.getSearchWord());
                 input.setSelection(item.getSearchWord().length());
             }

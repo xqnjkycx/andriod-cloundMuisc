@@ -33,6 +33,8 @@ import com.example.fragment.searchFragment;
 import com.example.fragment.userFragment;
 import com.google.android.material.navigation.NavigationView;
 
+import org.litepal.LitePal;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
@@ -65,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //初始化本应用的数据库
+        LitePal.initialize(this);
+
         Personalized personalizedSongsBlock = new Personalized();
         personalizedSongsBlock.init();
         //获取Toolbar实例
