@@ -217,6 +217,9 @@ public class MainActivity extends AppCompatActivity {
                 tabbarRankText.setTextColor(Color.parseColor("#E64A19"));
                 if (rankFragment == null) {
                     rankFragment = new rankFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("cookie",cookie);
+                    rankFragment.setArguments(bundle);
                     transaction.add(R.id.content,rankFragment);
                 } else {
                     transaction.show(rankFragment);

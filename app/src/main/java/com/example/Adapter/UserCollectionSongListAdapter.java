@@ -46,8 +46,8 @@ public class UserCollectionSongListAdapter extends RecyclerView.Adapter<UserColl
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               int position = holder.getAdapterPosition();
-               UserCollectionSongListBean songList = mDatas.get(position);
+                int position = holder.getAdapterPosition();
+                UserCollectionSongListBean songList = mDatas.get(position);
                 String picUrl = songList.getCoverImgUrl();
                 String name = songList.getName();
                 long id = songList.getId();
@@ -70,7 +70,7 @@ public class UserCollectionSongListAdapter extends RecyclerView.Adapter<UserColl
                 .load(item.getCoverImgUrl())
                 .into(holder.imgView);
         holder.name.setText(item.getName());
-        String des = item.getTrackCount()+", by " +item.getNickName();
+        String des = item.getTrackCount()+"首, by " +item.getNickName();
         holder.description.setText(des);
     }
     public int getItemCount(){

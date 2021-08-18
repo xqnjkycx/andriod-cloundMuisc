@@ -46,7 +46,10 @@ public class SongListDetailActivity extends AppCompatActivity {
         String picUrl = intent.getStringExtra("picUrl");
         String name = intent.getStringExtra("name");
         String cookie = intent.getStringExtra("cookie");
+
         long id = intent.getLongExtra("id",0);
+        Log.d("cookie",cookie+"");
+        Log.d("id",id+"");
         initToolBar( picUrl,name);
         initSongListDetail(id,cookie);
     }

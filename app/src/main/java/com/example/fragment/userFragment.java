@@ -175,11 +175,6 @@ public class userFragment extends Fragment {
     }
     //绘制用户收藏歌单界面
     private void drawUserCollectionSongList(){
-//        RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.search_list_recycler);
-//        LinearLayoutManager layoutManager = new LinearLayoutManager(fragmentContext);
-//        recyclerView.setLayoutManager(layoutManager);
-//        SearchListAdapter adapter = new SearchListAdapter(searchResList);
-//        recyclerView.setAdapter(adapter);
         RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.user_collection_songList_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(fragmentContext);
         recyclerView.setLayoutManager(layoutManager);

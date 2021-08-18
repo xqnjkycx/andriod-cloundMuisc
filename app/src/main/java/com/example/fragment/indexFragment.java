@@ -109,7 +109,7 @@ public class indexFragment extends Fragment  {
     }
     //请求并处理推荐歌单的网络数据
     private void initPersonalized(){
-        String url = "http://10.0.2.2:3000/personalized?limit=8";
+        String url = "http://10.0.2.2:3000/personalized?limit=10";
         HttpRequestTool.get(url,new okhttp3.Callback(){
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
@@ -131,7 +131,7 @@ public class indexFragment extends Fragment  {
     }
     //请求并处理热门流行歌单的网络数据
     private void initHotPopular(){
-        String url = "http://10.0.2.2:3000/top/playlist?limit=8&order=hot";
+        String url = "http://10.0.2.2:3000/top/playlist?limit=10&order=hot";
         HttpRequestTool.get(url,new okhttp3.Callback(){
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
