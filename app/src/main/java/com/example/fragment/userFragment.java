@@ -122,6 +122,7 @@ public class userFragment extends Fragment {
                 String name;
                 long id;
                 String nickName;
+                playList.remove(0);
                 for(UserCollectionSongListGson.PlaylistDTO item : playList){
                     coverImgUrl = item.getCoverImgUrl();
                     trackCount = item.getTrackCount();

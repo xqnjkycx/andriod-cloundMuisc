@@ -43,7 +43,7 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
         ViewHolder holder = new ViewHolder(view);
         holder.songListView.setOnClickListener(new View.OnClickListener(){
             @Override
-            public  void onClick(View v) {
+            public void onClick(View v) {
                 int position = holder.getAdapterPosition();
                 SongListBean songList = mDatas.get(position);
                 String picUrl = songList.getSongListPics();

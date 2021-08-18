@@ -36,6 +36,7 @@ import com.example.gsonClass.personalizedDetailGson;
 
 public class SongListDetailActivity extends AppCompatActivity {
     private List<personalizedDetailBean> detailList = new ArrayList<>();
+    private RecyclerView recyclerView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +53,6 @@ public class SongListDetailActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        drawUI();
     }
 
     //初始化ToolBar
@@ -98,15 +98,13 @@ public class SongListDetailActivity extends AppCompatActivity {
                             authorName = ar.getName();
                         }else {
                             authorName = authorName + " & " + ar.getName();
-                            Message message = new Message();
-                            message.what = 1;
-                            handler.sendMessage(message);
                         }
-
                     }
                     detailList.add(new personalizedDetailBean(authorName,songName));
+                    Message message = new Message();
+                    message.what = 1;
+                    handler.sendMessage(message);
                 }
-
             }
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -116,10 +114,11 @@ public class SongListDetailActivity extends AppCompatActivity {
     }
     //绘制歌单详情滚动模块
     private void drawUI(){
-        RecyclerView  recyclerView = (RecyclerView) findViewById(R.id.songList_detail_recycler);
+        recyclerView = (RecyclerView) findViewById(R.id.songList_detail_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         SongListDetailAdapter adapter = new SongListDetailAdapter(detailList);
+        adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
     }
     //切回主线程做UI操作

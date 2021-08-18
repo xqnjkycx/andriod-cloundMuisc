@@ -1,5 +1,6 @@
 package com.example.Adapter;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.bean.SongListBean;
 import com.example.bean.UserCollectionSongListBean;
 import com.example.mycloudmusic.R;
+import com.example.mycloudmusic.SongListDetailActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -21,10 +24,12 @@ public class UserCollectionSongListAdapter extends RecyclerView.Adapter<UserColl
     private List<UserCollectionSongListBean> mDatas;
     static class ViewHolder extends RecyclerView.ViewHolder{
         ImageView imgView;
+        View songListView;
         TextView name;
         TextView description;
         public ViewHolder(View view){
             super(view);
+            songListView = view;
             imgView = (ImageView) view.findViewById(R.id.user_collection_item_coverImg);
             name = (TextView) view.findViewById(R.id.user_collecton_songList_name);
             description = (TextView) view.findViewById(R.id.user_collection_songList_description);
@@ -37,7 +42,22 @@ public class UserCollectionSongListAdapter extends RecyclerView.Adapter<UserColl
     public ViewHolder onCreateViewHolder( ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.user_collection_songlist_item_layout,parent,false);
-        ViewHolder holder = new ViewHolder(view);
+        final ViewHolder holder = new ViewHolder(view);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               int position = holder.getAdapterPosition();
+               UserCollectionSongListBean songList = mDatas.get(position);
+                String picUrl = songList.getCoverImgUrl();
+                String name = songList.getName();
+                long id = songList.getId();
+                Intent intent = new Intent(parent.getContext(), SongListDetailActivity.class);
+                intent.putExtra("picUrl",picUrl);
+                intent.putExtra("name",name);
+                intent.putExtra("id",id);
+                parent.getContext().startActivity(intent);
+            }
+        });
         return holder;
     }
 
