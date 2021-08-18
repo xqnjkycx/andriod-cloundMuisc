@@ -31,6 +31,8 @@ import okhttp3.Response;
 
 import com.example.gsonClass.loginStatusClass;
 
+import org.jetbrains.annotations.NotNull;
+
 public class PhoneLogin extends AppCompatActivity {
     public static final int UPDATE_TEXT = 1;
     private EditText phoneNumberEditText;
@@ -85,11 +87,13 @@ public class PhoneLogin extends AppCompatActivity {
                             String nickName = loginRes.getProfile().getNickname();
                             String avatarUrl = loginRes.getProfile().getAvatarUrl();
                             String backgroundUrl = loginRes.getProfile().getBackgroundUrl();
+                            String cookie =  Uri.encode(loginRes.getCookie());
                             Intent intent = new Intent(PhoneLogin.this,MainActivity.class);
                             intent.putExtra("nickName",nickName);
                             intent.putExtra("avatarUrl",avatarUrl);
                             intent.putExtra("backgroundUrl",backgroundUrl);
                             intent.putExtra("userId",userId);
+                            intent.putExtra("cookie",cookie);
                             startActivity(intent);
                      } else {
                             Message message = new Message();

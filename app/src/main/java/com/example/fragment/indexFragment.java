@@ -51,6 +51,7 @@ public class indexFragment extends Fragment  {
     private List<SongListBean> songList = new ArrayList<>();
     //热门流行List
     private List<HotPopularBean> hotPopularList = new ArrayList<>();
+    private String cookie;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.index_fragment,container,false);
@@ -61,6 +62,8 @@ public class indexFragment extends Fragment  {
     public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fragmentContext = getContext();
+        Bundle  bundle = indexFragment.this.getArguments();
+        cookie = bundle.getString("cookie");
         initBannerData();
         initPersonalized();
         initHotPopular();
@@ -115,7 +118,7 @@ public class indexFragment extends Fragment  {
                 personlizedListSongClass personalized = gson.fromJson(responseData,personlizedListSongClass.class);
                 List<personlizedListSongClass.ResultDTO> personalizedSongList = personalized.getResult();
                 for (personlizedListSongClass.ResultDTO item:personalizedSongList){
-                    songList.add(new SongListBean(item.getName(),item.getPicUrl(),item.getId()));
+                    songList.add(new SongListBean(item.getName(),item.getPicUrl(),item.getId(),cookie));
                     Message message = new Message();
                     message.what = 1;
                     handler.sendMessage(message);

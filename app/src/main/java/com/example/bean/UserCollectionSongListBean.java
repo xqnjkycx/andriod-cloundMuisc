@@ -6,13 +6,15 @@ public class UserCollectionSongListBean {
     private String name;
     private String nickName;
     private long id;
+    private String cookie;
 
-    public UserCollectionSongListBean(int trackCount,String coverImgUrl,String nickName,String name,long id){
+    public UserCollectionSongListBean(int trackCount,String coverImgUrl,String nickName,String name,long id,String cookie){
         this.trackCount = trackCount;
         this.coverImgUrl = coverImgUrl;
         this.name = name;
         this.nickName = nickName;
         this.id = id;
+        this.cookie = cookie;
     }
 
     public String getNickName() {
@@ -53,5 +55,13 @@ public class UserCollectionSongListBean {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getCookie() {
+        return cookie;
+    }
+
+    public void setCookie(String cookie) {
+        this.cookie = cookie;
     }
 }

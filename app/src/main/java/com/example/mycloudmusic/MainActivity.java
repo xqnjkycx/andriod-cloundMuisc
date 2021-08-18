@@ -31,11 +31,17 @@ import com.example.fragment.indexFragment;
 import com.example.fragment.rankFragment;
 import com.example.fragment.searchFragment;
 import com.example.fragment.userFragment;
+import com.example.tools.HttpRequestTool;
 import com.google.android.material.navigation.NavigationView;
 
+import org.jetbrains.annotations.NotNull;
 import org.litepal.LitePal;
 
+import java.io.IOException;
+
 import de.hdodenhof.circleimageview.CircleImageView;
+import okhttp3.Call;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
@@ -67,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private String avatarUrl;
     private String backgroundUrl;
     private long userId;
+    private String cookie;
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
@@ -98,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
          avatarUrl = intent.getStringExtra("avatarUrl");
          backgroundUrl = intent.getStringExtra("backgroundUrl");
          userId = intent.getLongExtra("userId",0);
+         cookie = intent.getStringExtra("cookie");
         ImageView navHeaderBg= (ImageView) headerView.findViewById(R.id.nav_header_bg);
         CircleImageView iconHeader = (CircleImageView) headerView.findViewById(R.id.icon_header);
         TextView avatarName = (TextView) headerView.findViewById(R.id.user_name);
@@ -194,6 +202,9 @@ public class MainActivity extends AppCompatActivity {
                 tabbarIndexText.setTextColor(Color.parseColor("#E64A19"));
                 if (indexFragment == null) {
                     indexFragment = new indexFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("cookie",cookie);
+                    indexFragment.setArguments(bundle);
                     transaction.add(R.id.content,indexFragment);
                 } else {
                     transaction.show(indexFragment);
@@ -229,10 +240,12 @@ public class MainActivity extends AppCompatActivity {
                 if (userFragment == null) {
                     userFragment = new userFragment();
                     Bundle bundle = new Bundle();
+                    //用户界面，需要用户名、用户头像、用户背景、用户id、用户cookie
                     bundle.putString("nickName",nickName);
                     bundle.putString("avatarUrl",avatarUrl);
                     bundle.putString("backgroundUrl",backgroundUrl);
                     bundle.putLong("userId",userId);
+                    bundle.putString("cookie",cookie);
                     userFragment.setArguments(bundle);
                     transaction.add(R.id.content,userFragment);
                 } else {

@@ -48,11 +48,13 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
                 SongListBean songList = mDatas.get(position);
                 String picUrl = songList.getSongListPics();
                 String name = songList.getSongListName();
+                String cookie = songList.getCookie();
                 long id = songList.getSongListId();
                 Intent intent = new Intent(parent.getContext(), SongListDetailActivity.class);
                 intent.putExtra("picUrl",picUrl);
                 intent.putExtra("name",name);
                 intent.putExtra("id",id);
+                intent.putExtra("cookie",cookie);
                 parent.getContext().startActivity(intent);
             }
         });

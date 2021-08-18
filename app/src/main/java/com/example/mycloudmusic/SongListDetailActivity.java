@@ -45,9 +45,10 @@ public class SongListDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String picUrl = intent.getStringExtra("picUrl");
         String name = intent.getStringExtra("name");
+        String cookie = intent.getStringExtra("cookie");
         long id = intent.getLongExtra("id",0);
         initToolBar( picUrl,name);
-        initSongListDetail(id);
+        initSongListDetail(id,cookie);
     }
 
     @Override
@@ -79,8 +80,8 @@ public class SongListDetailActivity extends AppCompatActivity {
         return true;
     }
     //初始化歌单详情数据请求
-    private void initSongListDetail(long id){
-        String url = "http://10.0.2.2:3000/playlist/detail?id="+id;
+    private void initSongListDetail(long id,String cookie){
+        String url = "http://10.0.2.2:3000/playlist/detail?id="+id+"&cookie="+cookie;
         HttpRequestTool.get(url,new okhttp3.Callback(){
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
@@ -101,10 +102,10 @@ public class SongListDetailActivity extends AppCompatActivity {
                         }
                     }
                     detailList.add(new personalizedDetailBean(authorName,songName));
-                    Message message = new Message();
-                    message.what = 1;
-                    handler.sendMessage(message);
                 }
+                Message message = new Message();
+                message.what = 1;
+                handler.sendMessage(message);
             }
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {

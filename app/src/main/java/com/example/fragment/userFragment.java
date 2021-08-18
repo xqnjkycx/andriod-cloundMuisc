@@ -48,6 +48,7 @@ public class userFragment extends Fragment {
     private String nickName;
     private String avatarUrl;
     private String backgroundUrl;
+    private String cookie;
     private String level;
     private String fans;
     private String follows;
@@ -83,6 +84,7 @@ public class userFragment extends Fragment {
         avatarUrl = bundle.getString("avatarUrl");
         backgroundUrl = bundle.getString("backgroundUrl");
         id = bundle.getLong("userId");
+        cookie = bundle.getString("cookie");
         String url = "http://10.0.2.2:3000/user/detail?uid="+id;
         HttpRequestTool.get(url,new okhttp3.Callback(){
             @Override
@@ -130,7 +132,7 @@ public class userFragment extends Fragment {
                     id = item.getId();
                     UserCollectionSongListGson.PlaylistDTO.CreatorDTO creators = item.getCreator();
                     nickName = creators.getNickname();
-                    collectionSongList.add(new UserCollectionSongListBean(trackCount,coverImgUrl,nickName,name,id));
+                    collectionSongList.add(new UserCollectionSongListBean(trackCount,coverImgUrl,nickName,name,id,cookie));
                 }
                 Message message = new Message();
                 message.what = 2;

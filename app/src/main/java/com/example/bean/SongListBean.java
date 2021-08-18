@@ -4,9 +4,11 @@ public class SongListBean {
     private String songListName;
     private String songListPics;
     private long id;
-    public SongListBean(String songListName,String songListPics,long id){
+    private String cookie;
+    public SongListBean(String songListName,String songListPics,long id,String cookie){
         this.songListName = songListName;
         this.songListPics = songListPics;
+        this.cookie= cookie;
         this.id = id;
     }
     public String getSongListName(){
@@ -24,5 +26,13 @@ public class SongListBean {
     }
     public void setSongListId(long id){
         this.id = id;
+    }
+
+    public String getCookie() {
+        return cookie;
+    }
+
+    public void setCookie(String cookie) {
+        this.cookie = cookie;
     }
 }

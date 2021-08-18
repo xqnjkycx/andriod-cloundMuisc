@@ -51,10 +51,12 @@ public class UserCollectionSongListAdapter extends RecyclerView.Adapter<UserColl
                 String picUrl = songList.getCoverImgUrl();
                 String name = songList.getName();
                 long id = songList.getId();
+                String cookie = songList.getCookie();
                 Intent intent = new Intent(parent.getContext(), SongListDetailActivity.class);
                 intent.putExtra("picUrl",picUrl);
                 intent.putExtra("name",name);
                 intent.putExtra("id",id);
+                intent.putExtra("cookie",cookie);
                 parent.getContext().startActivity(intent);
             }
         });
