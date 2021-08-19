@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -46,10 +47,10 @@ public class SongListDetailActivity extends AppCompatActivity {
         String picUrl = intent.getStringExtra("picUrl");
         String name = intent.getStringExtra("name");
         String cookie = intent.getStringExtra("cookie");
-
         long id = intent.getLongExtra("id",0);
-        Log.d("cookie",cookie+"");
-        Log.d("id",id+"");
+        //设置状态栏透明色
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         initToolBar( picUrl,name);
         initSongListDetail(id,cookie);
     }
@@ -85,6 +86,7 @@ public class SongListDetailActivity extends AppCompatActivity {
     //初始化歌单详情数据请求
     private void initSongListDetail(long id,String cookie){
         String url = "http://10.0.2.2:3000/playlist/detail?id="+id+"&cookie="+cookie;
+        Log.d("url",url);
         HttpRequestTool.get(url,new okhttp3.Callback(){
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
@@ -95,7 +97,9 @@ public class SongListDetailActivity extends AppCompatActivity {
                 List<personalizedDetailGson.PlaylistDTO.TracksDTO> tracks = playlistObj.getTracks();
                 for (personalizedDetailGson.PlaylistDTO.TracksDTO track : tracks){
                     String songName = track.getName();
+                    String imgUrl = track.getAl().getPicUrl();
                     String authorName = null;
+                    long id = track.getId();
                     List<personalizedDetailGson.PlaylistDTO.TracksDTO.ArDTO> ars = track.getAr();
                     for (personalizedDetailGson.PlaylistDTO.TracksDTO.ArDTO ar : ars){
                         if(authorName == null){
@@ -104,7 +108,7 @@ public class SongListDetailActivity extends AppCompatActivity {
                             authorName = authorName + " & " + ar.getName();
                         }
                     }
-                    detailList.add(new personalizedDetailBean(authorName,songName));
+                    detailList.add(new personalizedDetailBean(authorName,songName,id,imgUrl));
                 }
                 Message message = new Message();
                 message.what = 1;

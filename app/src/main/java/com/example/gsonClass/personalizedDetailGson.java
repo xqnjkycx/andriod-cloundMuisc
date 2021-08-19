@@ -3,40 +3,45 @@ package com.example.gsonClass;
 import java.util.List;
 
 public class personalizedDetailGson {
-
-    private Integer code;
-    private Object relatedVideos;
     private PlaylistDTO playlist;
-    private Object urls;
-    private Object sharedPrivilege;
     public PlaylistDTO getPlaylist() {
         return playlist;
     }
-
     public void setPlaylist(PlaylistDTO playlist) {
         this.playlist = playlist;
     }
-
-    public Object getUrls() {
-        return urls;
-    }
-
-    public void setUrls(Object urls) {
-        this.urls = urls;
-    }
-
-
-    public Object getSharedPrivilege() {
-        return sharedPrivilege;
-    }
-
-    public void setSharedPrivilege(Object sharedPrivilege) {
-        this.sharedPrivilege = sharedPrivilege;
-    }
-
     public static class PlaylistDTO {
-
+        private Long id;
+        private String name;
+        private String coverImgUrl;
         private List<TracksDTO> tracks;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+
+
+        public String getCoverImgUrl() {
+            return coverImgUrl;
+        }
+
+        public void setCoverImgUrl(String coverImgUrl) {
+            this.coverImgUrl = coverImgUrl;
+        }
+
 
 
         public List<TracksDTO> getTracks() {
@@ -46,9 +51,12 @@ public class personalizedDetailGson {
         public void setTracks(List<TracksDTO> tracks) {
             this.tracks = tracks;
         }
+
         public static class TracksDTO {
             private String name;
+            private Integer id;
             private List<ArDTO> ar;
+            private AlDTO al;
 
             public String getName() {
                 return name;
@@ -56,6 +64,14 @@ public class personalizedDetailGson {
 
             public void setName(String name) {
                 this.name = name;
+            }
+
+            public Integer getId() {
+                return id;
+            }
+
+            public void setId(Integer id) {
+                this.id = id;
             }
 
             public List<ArDTO> getAr() {
@@ -66,19 +82,24 @@ public class personalizedDetailGson {
                 this.ar = ar;
             }
 
+            public AlDTO getAl() {
+                return al;
+            }
+
+            public void setAl(AlDTO al) {
+                this.al = al;
+            }
+
             public static class AlDTO {
-                private long id;
+                private Integer id;
                 private String name;
                 private String picUrl;
-                private List<?> tns;
-                private String pic_str;
-                private Long pic;
 
-                public long getId() {
+                public Integer getId() {
                     return id;
                 }
 
-                public void setId(long id) {
+                public void setId(Integer id) {
                     this.id = id;
                 }
 
@@ -97,31 +118,8 @@ public class personalizedDetailGson {
                 public void setPicUrl(String picUrl) {
                     this.picUrl = picUrl;
                 }
-
-                public List<?> getTns() {
-                    return tns;
-                }
-
-                public void setTns(List<?> tns) {
-                    this.tns = tns;
-                }
-
-                public String getPic_str() {
-                    return pic_str;
-                }
-
-                public void setPic_str(String pic_str) {
-                    this.pic_str = pic_str;
-                }
-
-                public Long getPic() {
-                    return pic;
-                }
-
-                public void setPic(Long pic) {
-                    this.pic = pic;
-                }
             }
+
 
             public static class ArDTO {
                 private Integer id;
@@ -162,6 +160,6 @@ public class personalizedDetailGson {
                 }
             }
         }
-    }
 
+    }
 }
