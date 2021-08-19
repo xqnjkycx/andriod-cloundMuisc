@@ -45,6 +45,12 @@
         </RelativeLayout>
     </RelativeLayout>
     <!--中间播放区域-->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/song_detail_viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="80dp"/>
     <!--底部控制栏-->
     <RelativeLayout
         android:layout_width="match_parent"
