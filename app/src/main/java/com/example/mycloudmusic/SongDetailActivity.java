@@ -10,8 +10,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -32,8 +34,10 @@ public class SongDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_detail);
+        //设置状态栏透明化
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         initSongDetail();
     }
 
@@ -41,6 +45,7 @@ public class SongDetailActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         drawBg();
+        drawTitlebar();
     }
 
     //初始化歌曲基本详情信息数据
@@ -58,7 +63,6 @@ public class SongDetailActivity extends AppCompatActivity {
         Glide.with(this)
                 .load(bgImgUrl)
                 .apply(RequestOptions.bitmapTransform(new BlurTransformation(10,100)))
-//                .thumbnail(0.1f)
                 .into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull @NotNull Drawable resource, @Nullable @org.jetbrains.annotations.Nullable Transition<? super Drawable> transition) {
@@ -68,5 +72,12 @@ public class SongDetailActivity extends AppCompatActivity {
                     public void onLoadCleared(@Nullable @org.jetbrains.annotations.Nullable Drawable placeholder) {
                     }
                 });
+    }
+    //绘制标题栏
+    private void drawTitlebar(){
+        TextView titleSongName = (TextView) findViewById(R.id.song_detail_song_name);
+        TextView titleAuthorName = (TextView) findViewById(R.id.song_detail_song_author);
+        titleSongName.setText(songName);
+        titleAuthorName.setText(authorName);
     }
 }

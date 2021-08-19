@@ -2,7 +2,94 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/song_detail_bgView"
+    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
+    <!--头部标题栏 -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_height="60dp">
+        <ImageView
+            android:id="@+id/song_detail_back"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/song_detail_back"
+            />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:orientation="vertical">
+            <TextView
+                android:textColor="@color/white"
+                android:id="@+id/song_detail_song_name"
+                android:textSize="17sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                />
+            <TextView
+                android:textColor="@color/white"
+                android:id="@+id/song_detail_song_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/song_detail_song_name"
+                />
+        </RelativeLayout>
+    </RelativeLayout>
+    <!--中间播放区域-->
+    <!--底部控制栏-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:background="#00000000"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="match_parent">
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/song_detail_unlike"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:id="@+id/like_btn" />
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/song_detail_prv"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:id="@+id/prv_btn" />
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/song_detail_play"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="45dp"
+                android:id="@+id/play_btn" />
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/song_detail_next"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:id="@+id/next_btn" />
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/song_detail_chat"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:id="@+id/chat_btn" />
+        </LinearLayout>
+    </RelativeLayout>
 </RelativeLayout>
