@@ -39,6 +39,8 @@ public class SongDetailActivity extends AppCompatActivity {
     private String bgImgUrl;
     private String songName;
     private String authorName;
+    private leftFragment lf;
+    private static String PLAY = "play";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,23 +82,13 @@ public class SongDetailActivity extends AppCompatActivity {
         super.onStart();
         drawBg();
         drawTitlebar();
-        //test:
-        ImageView play = (ImageView) findViewById(R.id.play_btn);
-        play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentManager manager = getSupportFragmentManager();
-                leftFragment lf = (leftFragment) manager.findFragmentByTag("f0");
-                Log.d("碎片的实例", "lf"+lf);
-            }
-        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        initClick();
     }
-
     //初始化歌曲基本详情信息数据
     private void initSongDetail(){
         Intent intent = getIntent();
@@ -104,6 +96,33 @@ public class SongDetailActivity extends AppCompatActivity {
         songName = intent.getStringExtra("songName");
         authorName = intent.getStringExtra("authorName");
         bgImgUrl = intent.getStringExtra("bgImg");
+    }
+    //初始化各种点击事件
+    private void initClick(){
+        //播放暂停点击事件
+        ImageView playBtn = (ImageView) findViewById(R.id.play_btn);
+        playBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (PLAY.equals("play")){
+                    //如果现在是播放状态，点击按钮则暂停
+                    PLAY = "pause";
+                    Glide.with(SongDetailActivity.this)
+                            .load(R.drawable.song_detail_play)
+                            .into(playBtn);
+                    //调用碎片的播放CD动画方法
+                    lf.pauseCD();
+                }else{
+                    PLAY = "play";
+                    Glide.with(SongDetailActivity.this)
+                            .load(R.drawable.song_detail_pause)
+                            .into(playBtn);
+                    //调用碎片的暂停动画方法
+                    lf.resumeCD();
+                }
+            }
+        });
+
     }
     //绘制歌曲详情页界面的背景图
     private void drawBg(){
@@ -132,8 +151,7 @@ public class SongDetailActivity extends AppCompatActivity {
     //绘制left-fragment的CD图f0案
     public void drawCD(){
         FragmentManager manager = getSupportFragmentManager();
-        leftFragment lf = (leftFragment) manager.findFragmentByTag("f0");
+        lf = (leftFragment) manager.findFragmentByTag("f0");
         lf.drawCD(bgImgUrl);
-        Log.d("碎片的实例", "lf"+lf);
     }
 }
