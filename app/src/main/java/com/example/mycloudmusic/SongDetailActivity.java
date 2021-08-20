@@ -12,7 +12,10 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -21,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -28,19 +32,30 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.fragment.songdetail.leftFragment;
 import com.example.fragment.songdetail.rightFragment;
+import com.example.gsonClass.MusicUrl;
 import com.example.tools.HttpRequestTool;
+import com.google.gson.Gson;
+import com.example.gsonClass.songDt;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.util.List;
+
 import jp.wasabeef.glide.transformations.BlurTransformation;
 import jp.wasabeef.glide.transformations.GrayscaleTransformation;
+import okhttp3.Call;
+import okhttp3.Response;
 
-public class SongDetailActivity extends AppCompatActivity {
+public class SongDetailActivity extends BaseActivity {
     private String bgImgUrl;
     private String songName;
     private String authorName;
+    private String time;
+    private String music;
     private leftFragment lf;
     private static String PLAY = "play";
+    private MediaPlayer musicPlayer ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +87,8 @@ public class SongDetailActivity extends AppCompatActivity {
             }
 
         };
+        musicPlayer.stop();
+        musicPlayer.reset();
         ViewPager2 viewPager2 = findViewById(R.id.song_detail_viewPager);
         viewPager2.setAdapter(adapter);
         viewPager2.setOffscreenPageLimit(2);
@@ -94,9 +111,55 @@ public class SongDetailActivity extends AppCompatActivity {
     private void initSongDetail(){
         Intent intent = getIntent();
         long id = intent.getLongExtra("id",0);
+        Log.d("id",id+"");
         songName = intent.getStringExtra("songName");
         authorName = intent.getStringExtra("authorName");
         bgImgUrl = intent.getStringExtra("bgImg");
+        String url = "http://10.0.2.2:3000/song/detail?ids="+id;
+        HttpRequestTool.get(url,new okhttp3.Callback(){
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseData = response.body().string();
+                Gson gson = new Gson();
+                songDt songdt = gson.fromJson(responseData,songDt.class);
+                long dt = 3599;
+                List<songDt.SongsDTO> list = songdt.getSongs();
+                for(songDt.SongsDTO item : list){
+                    dt = item.getDt();
+                }
+                long s = (dt - ( dt % 1000))/1000;
+                long sec = s % 60;
+                long min = (s - sec)/60;
+                String mint;
+                String sect;
+                mint = min < 10 ? "0" + min : "" + min;
+                sect = sec < 10 ? "0" + sec : "" + sec;
+                time = mint + ":" + sect;
+                Message message = new Message();
+                message.what = 1;
+                handler.sendMessage(message);
+            }
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) { }
+        });
+        HttpRequestTool.get("http://10.0.2.2:3000/song/url?id="+id,new okhttp3.Callback(){
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseData = response.body().string();
+                Gson gson = new Gson();
+                MusicUrl musicObj = gson.fromJson(responseData,MusicUrl.class);
+                List<MusicUrl.DataDTO> data = musicObj.getData();
+                for(MusicUrl.DataDTO item : data){
+                    music = item.getUrl();
+                }
+                Message message = new Message();
+                message.what = 2;
+                handler.sendMessage(message);
+            }
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            }
+        });
     }
     //初始化各种点击事件
     private void initClick(){
@@ -113,6 +176,8 @@ public class SongDetailActivity extends AppCompatActivity {
                             .into(playBtn);
                     //调用碎片的播放CD动画方法
                     lf.pauseCD();
+                    //暂停音乐
+                    musicPlayer.pause();
                 }else{
                     PLAY = "play";
                     Glide.with(SongDetailActivity.this)
@@ -120,6 +185,8 @@ public class SongDetailActivity extends AppCompatActivity {
                             .into(playBtn);
                     //调用碎片的暂停动画方法
                     lf.resumeCD();
+                    //开始音乐
+                    musicPlayer.start();
                 }
             }
         });
@@ -155,4 +222,34 @@ public class SongDetailActivity extends AppCompatActivity {
         lf = (leftFragment) manager.findFragmentByTag("f0");
         lf.drawCD(bgImgUrl);
     }
+    //绘制进度条
+    public void drawProgress(){
+        TextView endTime = (TextView) findViewById(R.id.end_time);
+        endTime.setText(time);
+    }
+    //播放音乐方法
+    public void playMusic(){
+        try {
+            musicPlayer.setDataSource(music);
+            musicPlayer.prepare();
+            musicPlayer.start();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    //异步任务处理机制
+    private Handler handler = new Handler(){
+        public void handleMessage(Message msg){
+            switch (msg.what){
+                case 1:
+                    drawProgress();
+                    break;
+                case 2:
+                    playMusic();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 }

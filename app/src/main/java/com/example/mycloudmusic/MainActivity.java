@@ -43,7 +43,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.Call;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity{
     private DrawerLayout mDrawerLayout;
 
     private RelativeLayout tabbarIndexLayout;

@@ -33,7 +33,7 @@ import com.example.gsonClass.loginStatusClass;
 
 import org.jetbrains.annotations.NotNull;
 
-public class PhoneLogin extends AppCompatActivity {
+public class PhoneLogin extends BaseActivity {
     public static final int UPDATE_TEXT = 1;
     private EditText phoneNumberEditText;
     private EditText passwordEditText;

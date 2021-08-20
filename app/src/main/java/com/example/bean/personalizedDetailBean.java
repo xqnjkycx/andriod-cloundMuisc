@@ -5,6 +5,15 @@ public class personalizedDetailBean {
     String authorName;
     long id;
     String songImg;
+    String dt;
+
+    public String getDt() {
+        return dt;
+    }
+
+    public void setDt(String dt) {
+        this.dt = dt;
+    }
 
     public String getSongImg() {
         return songImg;

@@ -36,7 +36,7 @@ import okhttp3.Response;
 import com.example.bean.personalizedDetailBean;
 import com.example.gsonClass.personalizedDetailGson;
 
-public class SongListDetailActivity extends AppCompatActivity {
+public class SongListDetailActivity extends BaseActivity {
     private List<personalizedDetailBean> detailList = new ArrayList<>();
     private RecyclerView recyclerView;
     @Override

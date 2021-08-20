@@ -16,6 +16,7 @@ public class personalizedDetailGson {
         private String coverImgUrl;
         private List<TracksDTO> tracks;
 
+
         public Long getId() {
             return id;
         }
