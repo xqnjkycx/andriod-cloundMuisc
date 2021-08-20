@@ -74,6 +74,7 @@ public class SongDetailActivity extends AppCompatActivity {
         };
         ViewPager2 viewPager2 = findViewById(R.id.song_detail_viewPager);
         viewPager2.setAdapter(adapter);
+        viewPager2.setOffscreenPageLimit(2);
         initSongDetail();
     }
 

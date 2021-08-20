@@ -39,19 +39,19 @@ public class leftFragment extends Fragment {
     public void onStart() {
         super.onStart();
         CDView = (CircleImageView) getActivity().findViewById(R.id.CD);
+        SongDetailActivity activity = (SongDetailActivity) getActivity();
         //设置CD旋转的属性
         CDAnimation = ObjectAnimator.ofFloat(CDView,View.ROTATION,0,360);
         CDAnimation.setDuration(10000)
                     .setRepeatCount(ObjectAnimator.INFINITE);
         CDAnimation.setInterpolator(new LinearInterpolator());
-//        CDAnimation.setRepeatMode(ObjectAnimator.RESTART);
+        activity.drawCD();
+        playCD();
     }
+
     @Override
     public void onResume() {
         super.onResume();
-        SongDetailActivity activity = (SongDetailActivity) getActivity();
-        activity.drawCD();
-        playCD();
     }
     public void drawCD(String url){
         Glide.with(this).load(url).into(CDView);
