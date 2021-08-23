@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
@@ -30,9 +31,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.example.Adapter.LyricAdapter;
 import com.example.Service.MusicPlayerService;
+import com.example.bean.lyricBean;
 import com.example.fragment.songdetail.leftFragment;
 import com.example.fragment.songdetail.rightFragment;
+import com.example.gsonClass.Lyric;
 import com.example.gsonClass.MusicUrl;
 import com.example.tools.HttpRequestTool;
 import com.google.gson.Gson;
@@ -41,7 +45,10 @@ import com.example.gsonClass.songDt;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jp.wasabeef.glide.transformations.BlurTransformation;
 import jp.wasabeef.glide.transformations.GrayscaleTransformation;
@@ -55,8 +62,10 @@ public class SongDetailActivity extends BaseActivity {
     private String time;
     private String music;
     private leftFragment lf;
+    private rightFragment lr;
     private static String PLAY = "play";
     private Intent musicPlayerIntent;
+    private List<lyricBean> lyricList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,6 +125,7 @@ public class SongDetailActivity extends BaseActivity {
         authorName = intent.getStringExtra("authorName");
         bgImgUrl = intent.getStringExtra("bgImg");
         String url = "http://10.0.2.2:3000/song/detail?ids="+id;
+        //获取歌曲播放时长
         HttpRequestTool.get(url,new okhttp3.Callback(){
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
@@ -142,6 +152,7 @@ public class SongDetailActivity extends BaseActivity {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) { }
         });
+        //获取歌曲播放url
         HttpRequestTool.get("http://10.0.2.2:3000/song/url?id="+id,new okhttp3.Callback(){
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
@@ -158,6 +169,36 @@ public class SongDetailActivity extends BaseActivity {
             }
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            }
+        });
+        //获取歌曲播放歌词
+        HttpRequestTool.get("http://10.0.2.2:3000/lyric?id="+id,new okhttp3.Callback(){
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                Gson gson = new Gson();
+                String responseData = response.body().string();
+                Lyric obj = gson.fromJson(responseData,Lyric.class);
+                Lyric.LrcDTO lyricObj = obj.getLrc();
+                String lyric = "纯音乐，尽情享受";
+                    if(lyricObj != null ) {
+                    lyric = lyricObj.getLyric();
+                    String pattern = "\\](.*?)\\n";
+                    Pattern r = Pattern.compile(pattern);
+                    Matcher m = r.matcher(lyric);
+                    while (m.find()){
+                        int length = m.group(0).length();
+                        lyricList.add(new lyricBean(m.group(0).substring(1,length)));
+                    }
+                }else {
+                        lyricList.add(new lyricBean(lyric));
+                    }
+                Message message = new Message();
+                message.what = 3;
+                handler.sendMessage(message);
+            }
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
             }
         });
     }
@@ -221,12 +262,24 @@ public class SongDetailActivity extends BaseActivity {
     public void drawCD(){
         FragmentManager manager = getSupportFragmentManager();
         lf = (leftFragment) manager.findFragmentByTag("f0");
-//      lf.drawCD(bgImgUrl);
     }
     //绘制进度条
     public void drawProgress(){
         TextView endTime = (TextView) findViewById(R.id.end_time);
         endTime.setText(time);
+    }
+    //绘制进度条
+    private void drawLyric(){
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.lyric_recycler);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        LyricAdapter adapter = new LyricAdapter(lyricList);
+        recyclerView.setAdapter(adapter);
+    }
+    //获取右侧碎片实例
+    public void getRightFragmentInstance(){
+        FragmentManager manager = getSupportFragmentManager();
+        lr = (rightFragment) manager.findFragmentByTag("f1");
     }
     //播放音乐方法
     public void playMusic(){
@@ -245,6 +298,9 @@ public class SongDetailActivity extends BaseActivity {
                     playMusic();
                     drawBg();
                     lf.drawCD(bgImgUrl);
+                    break;
+                case 3:
+                    drawLyric();
                     break;
                 default:
                     break;

@@ -1,12 +1,10 @@
 package com.example.Service;
-
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
-
 public class MusicPlayerService extends Service {
     private String oldMusicUrl="";
     private String newMusicUrl="";
