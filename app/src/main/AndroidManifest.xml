@@ -14,8 +14,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyCloudMusic"
         android:usesCleartextTraffic="true">
-        <activity android:name=".SongDetailActivity"></activity>
-        <activity android:name=".SongListDetailActivity"></activity>
+        <service
+            android:name="com.example.Service.MusicPlayerService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        <activity android:name=".SongDetailActivity" />
+        <activity android:name=".SongListDetailActivity" />
         <activity
             android:name=".PhoneLogin"
             android:label="手机号登录" />

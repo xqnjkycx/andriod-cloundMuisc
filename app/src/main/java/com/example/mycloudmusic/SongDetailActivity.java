@@ -30,6 +30,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.example.Service.MusicPlayerService;
 import com.example.fragment.songdetail.leftFragment;
 import com.example.fragment.songdetail.rightFragment;
 import com.example.gsonClass.MusicUrl;
@@ -55,7 +56,7 @@ public class SongDetailActivity extends BaseActivity {
     private String music;
     private leftFragment lf;
     private static String PLAY = "play";
-    private MediaPlayer musicPlayer ;
+    private Intent musicPlayerIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,18 +88,18 @@ public class SongDetailActivity extends BaseActivity {
             }
 
         };
-        musicPlayer.stop();
-        musicPlayer.reset();
+
         ViewPager2 viewPager2 = findViewById(R.id.song_detail_viewPager);
         viewPager2.setAdapter(adapter);
         viewPager2.setOffscreenPageLimit(2);
         initSongDetail();
+        musicPlayerIntent = new Intent(this, MusicPlayerService.class);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        drawBg();
+//      drawBg();
         drawTitlebar();
     }
 
@@ -111,7 +112,6 @@ public class SongDetailActivity extends BaseActivity {
     private void initSongDetail(){
         Intent intent = getIntent();
         long id = intent.getLongExtra("id",0);
-        Log.d("id",id+"");
         songName = intent.getStringExtra("songName");
         authorName = intent.getStringExtra("authorName");
         bgImgUrl = intent.getStringExtra("bgImg");
@@ -177,7 +177,8 @@ public class SongDetailActivity extends BaseActivity {
                     //调用碎片的播放CD动画方法
                     lf.pauseCD();
                     //暂停音乐
-                    musicPlayer.pause();
+                    musicPlayerIntent.putExtra("action","pause");
+                    startService(musicPlayerIntent);
                 }else{
                     PLAY = "play";
                     Glide.with(SongDetailActivity.this)
@@ -186,7 +187,7 @@ public class SongDetailActivity extends BaseActivity {
                     //调用碎片的暂停动画方法
                     lf.resumeCD();
                     //开始音乐
-                    musicPlayer.start();
+                    playMusic();
                 }
             }
         });
@@ -220,7 +221,7 @@ public class SongDetailActivity extends BaseActivity {
     public void drawCD(){
         FragmentManager manager = getSupportFragmentManager();
         lf = (leftFragment) manager.findFragmentByTag("f0");
-        lf.drawCD(bgImgUrl);
+//      lf.drawCD(bgImgUrl);
     }
     //绘制进度条
     public void drawProgress(){
@@ -229,13 +230,9 @@ public class SongDetailActivity extends BaseActivity {
     }
     //播放音乐方法
     public void playMusic(){
-        try {
-            musicPlayer.setDataSource(music);
-            musicPlayer.prepare();
-            musicPlayer.start();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        musicPlayerIntent.putExtra("musicUrl",music);
+         musicPlayerIntent.putExtra("action","play");
+         startService(musicPlayerIntent);
     }
     //异步任务处理机制
     private Handler handler = new Handler(){
@@ -246,6 +243,8 @@ public class SongDetailActivity extends BaseActivity {
                     break;
                 case 2:
                     playMusic();
+                    drawBg();
+                    lf.drawCD(bgImgUrl);
                     break;
                 default:
                     break;
