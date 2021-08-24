@@ -23,7 +23,9 @@ import android.view.WindowManager;
 import android.widget.Adapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,15 +58,20 @@ import okhttp3.Call;
 import okhttp3.Response;
 
 public class SongDetailActivity extends BaseActivity {
-    private String bgImgUrl;
-    private String songName;
-    private String authorName;
-    private String time;
-    private String music;
-    private leftFragment lf;
-    private rightFragment lr;
-    private static String PLAY = "play";
-    private Intent musicPlayerIntent;
+    private String bgImgUrl;  //背景图片地址
+    private String songName;  //当前歌曲名字
+    private String authorName;//当前歌曲作者名
+    private String durationTime;      //当前歌曲的总时间
+    private String nowTime; //当前时间
+    private TextView startTimeView;
+    private long dt = 3599;                  //当前歌曲的总秒数
+    private String music;     //当前歌曲url
+    private leftFragment lf;  //CD碎片实例
+    private rightFragment lr; //歌词碎片实例
+    private SeekBar seekBar;//进度条实例
+    private static String PLAY = "play";//判断当前歌曲播放状态变量（播放、暂停）
+    private Intent musicPlayerIntent; //开启服务intent
+    private float progress; //进度条进度
     private List<lyricBean> lyricList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,14 +108,15 @@ public class SongDetailActivity extends BaseActivity {
         ViewPager2 viewPager2 = findViewById(R.id.song_detail_viewPager);
         viewPager2.setAdapter(adapter);
         viewPager2.setOffscreenPageLimit(2);
+        seekBar = (SeekBar) findViewById(R.id.progress_bar);
         initSongDetail();
         musicPlayerIntent = new Intent(this, MusicPlayerService.class);
+        startTimeView = (TextView) findViewById(R.id.start_time);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-//      drawBg();
         drawTitlebar();
     }
 
@@ -132,19 +140,11 @@ public class SongDetailActivity extends BaseActivity {
                 String responseData = response.body().string();
                 Gson gson = new Gson();
                 songDt songdt = gson.fromJson(responseData,songDt.class);
-                long dt = 3599;
                 List<songDt.SongsDTO> list = songdt.getSongs();
                 for(songDt.SongsDTO item : list){
                     dt = item.getDt();
                 }
-                long s = (dt - ( dt % 1000))/1000;
-                long sec = s % 60;
-                long min = (s - sec)/60;
-                String mint;
-                String sect;
-                mint = min < 10 ? "0" + min : "" + min;
-                sect = sec < 10 ? "0" + sec : "" + sec;
-                time = mint + ":" + sect;
+                durationTime = formatTime(dt);
                 Message message = new Message();
                 message.what = 1;
                 handler.sendMessage(message);
@@ -166,6 +166,7 @@ public class SongDetailActivity extends BaseActivity {
                 Message message = new Message();
                 message.what = 2;
                 handler.sendMessage(message);
+                handler.sendEmptyMessage(4);
             }
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -223,6 +224,7 @@ public class SongDetailActivity extends BaseActivity {
                     startService(musicPlayerIntent);
                 }else{
                     PLAY = "play";
+                    handler.sendEmptyMessage(4);
                     Glide.with(SongDetailActivity.this)
                             .load(R.drawable.song_detail_pause)
                             .into(playBtn);
@@ -267,7 +269,7 @@ public class SongDetailActivity extends BaseActivity {
     //绘制进度条
     public void drawProgress(){
         TextView endTime = (TextView) findViewById(R.id.end_time);
-        endTime.setText(time);
+        endTime.setText(durationTime);
     }
     //绘制歌词界面
     private void drawLyric(){
@@ -303,9 +305,35 @@ public class SongDetailActivity extends BaseActivity {
                 case 3:
                     drawLyric();
                     break;
+                case 4:
+                    try {
+                        progress = MusicPlayerService.getMusicPlayer().getCurrentPosition()*100/dt;
+                        seekBar.setProgress((int)progress);
+                        nowTime = formatTime(MusicPlayerService.getMusicPlayer().getCurrentPosition());
+                        startTimeView.setText(nowTime);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    handler.sendEmptyMessageDelayed(4,1100);
+
+                    break;
                 default:
                     break;
             }
         }
     };
+
+    //整理时间
+    private String formatTime(long dt){
+        String time;
+        long s = (dt - ( dt % 1000))/1000;
+        long sec = s % 60;
+        long min = (s - sec)/60;
+        String mint;
+        String sect;
+        mint = min < 10 ? "0" + min : "" + min;
+        sect = sec < 10 ? "0" + sec : "" + sec;
+        time = mint + ":" + sect;
+        return time;
+    }
 }

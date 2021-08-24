@@ -38,7 +38,14 @@ public class MusicPlayerService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private MediaPlayer musicPlayer;
+    private static MediaPlayer musicPlayer;
+    /**
+     * 获取musicPlayer实例
+     * */
+    public static MediaPlayer getMusicPlayer() {
+        return musicPlayer;
+    }
+
     /**
      * 播放音乐
      * */
