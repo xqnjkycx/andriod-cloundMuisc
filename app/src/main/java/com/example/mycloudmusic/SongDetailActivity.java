@@ -176,6 +176,7 @@ public class SongDetailActivity extends BaseActivity {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 Gson gson = new Gson();
+                Log.d("id",id+"");
                 String responseData = response.body().string();
                 Lyric obj = gson.fromJson(responseData,Lyric.class);
                 Lyric.LrcDTO lyricObj = obj.getLrc();
@@ -268,7 +269,7 @@ public class SongDetailActivity extends BaseActivity {
         TextView endTime = (TextView) findViewById(R.id.end_time);
         endTime.setText(time);
     }
-    //绘制进度条
+    //绘制歌词界面
     private void drawLyric(){
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.lyric_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
