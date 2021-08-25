@@ -48,7 +48,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,19 +71,25 @@ public class SongDetailActivity extends BaseActivity {
     private leftFragment lf;  //CD碎片实例
     private rightFragment lr; //歌词碎片实例
     private SeekBar seekBar;//进度条实例
+    private Map<String,String> lyricMap = new HashMap<>(); //时间 -- 歌词 映射对象
     private static String PLAY = "play";//判断当前歌曲播放状态变量（播放、暂停）
+    private static String HANDLER_STATUS = "handler_stop";
     private Intent musicPlayerIntent; //开启服务intent
     private float progress; //进度条进度
-    private List<lyricBean> lyricList = new ArrayList<>();
+    private RecyclerView lyricRecyclerView; //歌词滚动界面的recycler
+    private LyricAdapter adapter;   //歌此滚动界面的适配器adapter
+    private List<lyricBean> lyricList = new ArrayList<>(); //存放歌词的数组
+    private int currentPosition; //当前播放的歌词行数
+    private MediaPlayer musicPlayer;//歌曲播放器实例
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_detail);
-        //设置状态栏透明化
+        //设置状态栏透明化,
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-        //初始化适配器，并且添加给viewpager2
+        //初始化适配器，并且动态添加给viewpager2，其内容主要包含CD界面和歌词界面
         FragmentStateAdapter adapter = new FragmentStateAdapter(this) {
             @Override
             public Fragment createFragment(int position) {
@@ -104,29 +112,34 @@ public class SongDetailActivity extends BaseActivity {
             }
 
         };
-
         ViewPager2 viewPager2 = findViewById(R.id.song_detail_viewPager);
         viewPager2.setAdapter(adapter);
-        viewPager2.setOffscreenPageLimit(2);
-        seekBar = (SeekBar) findViewById(R.id.progress_bar);
-        initSongDetail();
-        musicPlayerIntent = new Intent(this, MusicPlayerService.class);
+        viewPager2.setOffscreenPageLimit(2); //setOffscreenPagelimit能够缓存fragment的状态，解决了歌词界面切换到CD界面，CD闪动的问题
+        seekBar = (SeekBar) findViewById(R.id.progress_bar); //初始化进度条
+        initSongDetail(); //发送请求信息，得到歌词、歌曲时长...
+        musicPlayerIntent = new Intent(this, MusicPlayerService.class); //开启播放服务，进入到歌曲详情页就自动播放
         startTimeView = (TextView) findViewById(R.id.start_time);
+        initClick();//初始化各类点击事件
     }
-
     @Override
     protected void onStart() {
         super.onStart();
-        drawTitlebar();
     }
-
     @Override
     protected void onResume() {
         super.onResume();
-        initClick();
     }
-    //初始化歌曲基本详情信息数据
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        HANDLER_STATUS = "handler_stop";//活动销毁的时候，暂停计时线程
+    }
+    //请求歌曲基本详情信息数据
     private void initSongDetail(){
+        /**
+         * 由于歌曲的一些信息，比如歌名和作者名在上一页的歌单详情界面就已经请求到了
+         * 这里就不再发请求，直接intent传过来
+         * */
         Intent intent = getIntent();
         long id = intent.getLongExtra("id",0);
         songName = intent.getStringExtra("songName");
@@ -144,7 +157,7 @@ public class SongDetailActivity extends BaseActivity {
                 for(songDt.SongsDTO item : list){
                     dt = item.getDt();
                 }
-                durationTime = formatTime(dt);
+                durationTime = formatTime(dt);    //传过来的duration比较复杂，这里将其处理为 xx:xx 的形式
                 Message message = new Message();
                 message.what = 1;
                 handler.sendMessage(message);
@@ -166,6 +179,8 @@ public class SongDetailActivity extends BaseActivity {
                 Message message = new Message();
                 message.what = 2;
                 handler.sendMessage(message);
+                //请求完成之后开启计时线程，计算当前播放的时间
+                HANDLER_STATUS = "handler_begin";
                 handler.sendEmptyMessage(4);
             }
             @Override
@@ -184,13 +199,8 @@ public class SongDetailActivity extends BaseActivity {
                 String lyric = "纯音乐，尽情享受";
                     if(lyricObj != null ) {
                     lyric = lyricObj.getLyric();
-                    String pattern = "\\](.*?)\\n";
-                    Pattern r = Pattern.compile(pattern);
-                    Matcher m = r.matcher(lyric);
-                    while (m.find()){
-                        int length = m.group(0).length();
-                        lyricList.add(new lyricBean(m.group(0).substring(1,length)));
-                    }
+                    //歌词处理函数
+                    formatLyric(lyric);
                 }else {
                         lyricList.add(new lyricBean(lyric));
                     }
@@ -212,25 +222,22 @@ public class SongDetailActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 if (PLAY.equals("play")){
-                    //如果现在是播放状态，点击按钮则暂停
-                    PLAY = "pause";
+                    PLAY = "pause";  //如果现在是播放状态，点击按钮则暂停
                     Glide.with(SongDetailActivity.this)
                             .load(R.drawable.song_detail_play)
                             .into(playBtn);
-                    //调用碎片的播放CD动画方法
-                    lf.pauseCD();
-                    //暂停音乐
-                    musicPlayerIntent.putExtra("action","pause");
+                    lf.pauseCD();//CD停止转动
+                    musicPlayerIntent.putExtra("action","pause");//给服务发送消息，暂停音乐播放
                     startService(musicPlayerIntent);
+                    HANDLER_STATUS = "handler_stop";//关闭计时线程
                 }else{
                     PLAY = "play";
+                    HANDLER_STATUS="handler_begin"; //开启计时线程
                     handler.sendEmptyMessage(4);
                     Glide.with(SongDetailActivity.this)
                             .load(R.drawable.song_detail_pause)
                             .into(playBtn);
-                    //调用碎片的暂停动画方法
-                    lf.resumeCD();
-                    //开始音乐
+                    lf.resumeCD();//CD继续转动
                     playMusic();
                 }
             }
@@ -243,8 +250,9 @@ public class SongDetailActivity extends BaseActivity {
         //用Gilde给非View类加载图片
         Glide.with(this)
                 .load(bgImgUrl)
+                //背景图的高斯模糊就用这个
                 .apply(RequestOptions.bitmapTransform(new BlurTransformation(10,100)))
-                .into(new CustomTarget<Drawable>() {
+                .into(new CustomTarget<Drawable>() {//通过Glide给布局添加背景和给imageView加背景不一样，以下为正确写法
                     @Override
                     public void onResourceReady(@NonNull @NotNull Drawable resource, @Nullable @org.jetbrains.annotations.Nullable Transition<? super Drawable> transition) {
                         relativeLayout.setBackground(resource);
@@ -263,8 +271,19 @@ public class SongDetailActivity extends BaseActivity {
     }
     //绘制left-fragment的CD图f0案
     public void drawCD(){
+        /**
+         * 拿到CD碎片实例，但是它的调用者应该在fragment的生命周期函数里面
+         * 如果在activity里面的生命周期函数获取这个碎片实例，不能保证碎片这时已经完全创建好了
+         * 所以应该在碎片的onStart的生命周期里面调用这个方法，保证lf能获取到
+         * 下面获取右侧碎片实例的道理也是一样的
+         * */
         FragmentManager manager = getSupportFragmentManager();
         lf = (leftFragment) manager.findFragmentByTag("f0");
+    }
+    //获取右侧碎片实例
+    public void getRightFragmentInstance(){
+        FragmentManager manager = getSupportFragmentManager();
+        lr = (rightFragment) manager.findFragmentByTag("f1");
     }
     //绘制进度条
     public void drawProgress(){
@@ -273,22 +292,18 @@ public class SongDetailActivity extends BaseActivity {
     }
     //绘制歌词界面
     private void drawLyric(){
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.lyric_recycler);
+        //recycler适配
+        lyricRecyclerView = (RecyclerView) findViewById(R.id.lyric_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        LyricAdapter adapter = new LyricAdapter(lyricList);
-        recyclerView.setAdapter(adapter);
-    }
-    //获取右侧碎片实例
-    public void getRightFragmentInstance(){
-        FragmentManager manager = getSupportFragmentManager();
-        lr = (rightFragment) manager.findFragmentByTag("f1");
+        lyricRecyclerView.setLayoutManager(layoutManager);
+        adapter = new LyricAdapter(lyricList);
+        lyricRecyclerView.setAdapter(adapter);
     }
     //播放音乐方法
     public void playMusic(){
         musicPlayerIntent.putExtra("musicUrl",music);
          musicPlayerIntent.putExtra("action","play");
-         startService(musicPlayerIntent);
+         startService(musicPlayerIntent);//开启服务开始放音乐
     }
     //异步任务处理机制
     private Handler handler = new Handler(){
@@ -298,6 +313,7 @@ public class SongDetailActivity extends BaseActivity {
                     drawProgress();
                     break;
                 case 2:
+                    drawTitlebar();
                     playMusic();
                     drawBg();
                     lf.drawCD(bgImgUrl);
@@ -306,16 +322,20 @@ public class SongDetailActivity extends BaseActivity {
                     drawLyric();
                     break;
                 case 4:
-                    try {
-                        progress = MusicPlayerService.getMusicPlayer().getCurrentPosition()*100/dt;
-                        seekBar.setProgress((int)progress);
-                        nowTime = formatTime(MusicPlayerService.getMusicPlayer().getCurrentPosition());
-                        startTimeView.setText(nowTime);
-                    }catch (Exception e){
-                        e.printStackTrace();
+                    if(HANDLER_STATUS.equals("handler_begin")){
+                        try {
+                            //计时线程，当计时线程开启的时候，不断去更新progress的进度和左侧的当前播放时间
+                            musicPlayer = MusicPlayerService.getMusicPlayer();
+                            progress = musicPlayer.getCurrentPosition()*100/dt;
+                            seekBar.setProgress((int)progress);
+                            nowTime = formatTime(musicPlayer.getCurrentPosition());
+                            startTimeView.setText(nowTime);
+                            progressListener(nowTime);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        handler.sendEmptyMessageDelayed(4,1000);
                     }
-                    handler.sendEmptyMessageDelayed(4,1100);
-
                     break;
                 default:
                     break;
@@ -323,7 +343,7 @@ public class SongDetailActivity extends BaseActivity {
         }
     };
 
-    //整理时间
+    //整理歌曲总时间
     private String formatTime(long dt){
         String time;
         long s = (dt - ( dt % 1000))/1000;
@@ -335,5 +355,61 @@ public class SongDetailActivity extends BaseActivity {
         sect = sec < 10 ? "0" + sec : "" + sec;
         time = mint + ":" + sect;
         return time;
+    }
+    //处理歌词
+    private void formatLyric(String lyric){
+        String pattern = "(\\[)(.*?)\\n";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(lyric);
+        String tl;
+        String key;
+        String value;
+        int condition;
+        int length;
+        while (m.find()){
+            tl = m.group(0);
+            length = tl.length();
+            key = tl.substring(1,6);
+            condition = Integer.parseInt(tl.substring(7,8)) ;
+            if(condition >= 8){
+                int total =Integer.parseInt(key.substring(0,2) )* 60 + Integer.parseInt(key.substring(3,5)) + 1;
+                int sec = total % 60;
+                int min = (total - sec)/60;
+                String mint;
+                String sect;
+                mint = min < 10 ? "0" + min : "" + min;
+                sect = sec < 10 ? "0" + sec : "" + sec;
+                key = mint + ":" + sect;
+            }
+            Log.d("key",key);
+            value = tl.substring(tl.indexOf("]")+1,length);
+            if(value.length()!=1){
+                lyricList.add(new lyricBean(value));
+                lyricMap.put(key,value);
+            }
+        }
+    }
+    //进度监听者
+    private  void  progressListener(String t){
+        String lyric = lyricMap.get(t);
+        int flag = MusicPlayerService.getFlag();
+        if(lyric!=null){
+            currentPosition = flag;
+            if(lyricList.get(currentPosition).getLyric().equals(lyric)&&currentPosition<lyricList.size()){
+                flag++;
+                MusicPlayerService.setFlag(flag);
+                highLightLyric(currentPosition,lyric);
+            }
+        }
+    }
+    //更新歌词高亮
+    private void highLightLyric(int position,String currentLyric){
+        adapter.selectedItem(position,currentLyric);
+        if(position > 5 && position+5<lyricList.size()){
+            lyricRecyclerView.scrollToPosition(position+5);
+        }
+        if(position == lyricList.size()-1){
+            lyricRecyclerView.scrollToPosition(position);
+        }
     }
 }

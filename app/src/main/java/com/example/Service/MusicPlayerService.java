@@ -8,9 +8,18 @@ import android.util.Log;
 public class MusicPlayerService extends Service {
     private String oldMusicUrl="";
     private String newMusicUrl="";
+    private static int  flag = 0;
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    public static int getFlag() {
+        return flag;
+    }
+
+    public static void setFlag(int flag) {
+        MusicPlayerService.flag = flag;
     }
 
     @Override
@@ -77,5 +86,6 @@ public class MusicPlayerService extends Service {
         stopMusic();
         musicPlayer = MediaPlayer.create(this, Uri.parse(newMusicUrl));
         musicPlayer.start();
+        flag = 0;
     }
 }
