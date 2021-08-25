@@ -60,6 +60,7 @@ import okhttp3.Call;
 import okhttp3.Response;
 
 public class SongDetailActivity extends BaseActivity {
+    private int flag; //歌曲歌词行数计数器
     private String bgImgUrl;  //背景图片地址
     private String songName;  //当前歌曲名字
     private String authorName;//当前歌曲作者名
@@ -75,10 +76,11 @@ public class SongDetailActivity extends BaseActivity {
     private static String PLAY = "play";//判断当前歌曲播放状态变量（播放、暂停）
     private static String HANDLER_STATUS = "handler_stop";
     private Intent musicPlayerIntent; //开启服务intent
-    private float progress; //进度条进度
+    private float finalProgress; //进度条进度
     private RecyclerView lyricRecyclerView; //歌词滚动界面的recycler
     private LyricAdapter adapter;   //歌此滚动界面的适配器adapter
     private List<lyricBean> lyricList = new ArrayList<>(); //存放歌词的数组
+    private List<String> timeList = new ArrayList<>();
     private int currentPosition; //当前播放的歌词行数
     private MediaPlayer musicPlayer;//歌曲播放器实例
     @Override
@@ -214,7 +216,7 @@ public class SongDetailActivity extends BaseActivity {
             }
         });
     }
-    //初始化各种点击事件
+    //初始化各种点击、拖动事件
     private void initClick(){
         //播放暂停点击事件
         ImageView playBtn = (ImageView) findViewById(R.id.play_btn);
@@ -242,7 +244,53 @@ public class SongDetailActivity extends BaseActivity {
                 }
             }
         });
+        //进度条拖动事件
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
+            //拖动过程中
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                finalProgress = progress;
+            }
+            //开始拖动
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+            //停止拖动s
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                long currentTime;
+                currentTime = (long) Math.floor(dt/1000 * finalProgress / 100);
+                String nowTime;
+                long sec = currentTime % 60;
+                long min = (currentTime - sec)/60;
+                String mint;
+                String sect;
+                mint = min < 10 ? "0" + min : "" + min;
+                sect = sec < 10 ? "0" + sec : "" + sec;
+                nowTime = mint + ":" + sect;
+                startTimeView.setText(nowTime);
+                MusicPlayerService.getMusicPlayer().seekTo((int)currentTime*1000);
+                //定位歌词所在行
+                for(int i = 0 ; i < timeList.size();i++){
+                    if(i == timeList.size()-1){
+                        flag = i + 1;
+                        MusicPlayerService.setFlag(flag);
+                        highLightLyric(i,lyricList.get(i).getLyric());
+                        break;
+                    }else{
+                        if(currentTime>=changeTimeToSecond(timeList.get(i))&&currentTime<changeTimeToSecond(timeList.get(i+1))){
+                            flag = i + 1;
+                            MusicPlayerService.setFlag(flag);
+                            highLightLyric(i,lyricList.get(i).getLyric());
+                            break;
+                        }
+                    }
+                }
+
+            }
+        });
     }
     //绘制歌曲详情页界面的背景图
     private void drawBg(){
@@ -326,8 +374,8 @@ public class SongDetailActivity extends BaseActivity {
                         try {
                             //计时线程，当计时线程开启的时候，不断去更新progress的进度和左侧的当前播放时间
                             musicPlayer = MusicPlayerService.getMusicPlayer();
-                            progress = musicPlayer.getCurrentPosition()*100/dt;
-                            seekBar.setProgress((int)progress);
+                            finalProgress = musicPlayer.getCurrentPosition()*100/dt;
+                            seekBar.setProgress((int)finalProgress);
                             nowTime = formatTime(musicPlayer.getCurrentPosition());
                             startTimeView.setText(nowTime);
                             progressListener(nowTime);
@@ -335,6 +383,7 @@ public class SongDetailActivity extends BaseActivity {
                             e.printStackTrace();
                         }
                         handler.sendEmptyMessageDelayed(4,1000);
+                        Log.d("Handler_status",""+HANDLER_STATUS);
                     }
                     break;
                 default:
@@ -381,10 +430,10 @@ public class SongDetailActivity extends BaseActivity {
                 sect = sec < 10 ? "0" + sec : "" + sec;
                 key = mint + ":" + sect;
             }
-            Log.d("key",key);
             value = tl.substring(tl.indexOf("]")+1,length);
             if(value.length()!=1){
                 lyricList.add(new lyricBean(value));
+                timeList.add(key);
                 lyricMap.put(key,value);
             }
         }
@@ -392,7 +441,8 @@ public class SongDetailActivity extends BaseActivity {
     //进度监听者
     private  void  progressListener(String t){
         String lyric = lyricMap.get(t);
-        int flag = MusicPlayerService.getFlag();
+        flag = MusicPlayerService.getFlag();
+        Log.d("flag",flag+"");
         if(lyric!=null){
             currentPosition = flag;
             if(lyricList.get(currentPosition).getLyric().equals(lyric)&&currentPosition<lyricList.size()){
@@ -411,5 +461,11 @@ public class SongDetailActivity extends BaseActivity {
         if(position == lyricList.size()-1){
             lyricRecyclerView.scrollToPosition(position);
         }
+    }
+    //工具类，将秒数变为xx:xx的时间形式 转化为 总秒数。 例如03：00 转化为 180秒
+    private int changeTimeToSecond(String time){
+        int minTotalSecond = Integer.parseInt(time.substring(0,2) )* 60 ;
+        int secTotalSecond = Integer.parseInt(time.substring(3,5));
+        return minTotalSecond + secTotalSecond;
     }
 }
