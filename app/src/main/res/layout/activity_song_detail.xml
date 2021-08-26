@@ -104,11 +104,11 @@
             android:layout_height="match_parent">
             <ImageView
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/song_detail_unlike"
+                android:src="@drawable/order"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="30dp"
-                android:id="@+id/like_btn" />
+                android:id="@+id/mode_btn" />
             <ImageView
                 android:layout_gravity="center_vertical"
                 android:src="@drawable/song_detail_prv"
@@ -132,11 +132,11 @@
                 android:id="@+id/next_btn" />
             <ImageView
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/song_detail_chat"
+                android:src="@drawable/song_detail_unlike"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="30dp"
-                android:id="@+id/chat_btn" />
+                android:id="@+id/like_btn" />
         </LinearLayout>
     </RelativeLayout>
 </RelativeLayout>

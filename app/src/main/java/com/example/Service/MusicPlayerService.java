@@ -5,10 +5,19 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
+
+import com.example.bean.MusicInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class MusicPlayerService extends Service {
     private String oldMusicUrl="";
     private String newMusicUrl="";
     private static int  flag = 0;
+    private static String mode = "ORDER"; //默认播放器是顺序播放
+    private static List<MusicInfo> musicPlayList = new ArrayList<>();
+    private static int playIndex = -1;
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -22,19 +31,58 @@ public class MusicPlayerService extends Service {
         MusicPlayerService.flag = flag;
     }
 
+    public static String getMode() {
+        return mode;
+    }
+
+    public static int getPlayIndex() {
+        return playIndex;
+    }
+
+    public static void setPlayIndex(int playIndex) {
+        MusicPlayerService.playIndex = playIndex;
+    }
+
+    public static void setMode(String mode) {
+        MusicPlayerService.mode = mode;
+    }
+
+    public static List<MusicInfo> getMusicPlayList() {
+        return musicPlayList;
+    }
+
+    public static void setMusicPlayList(List<MusicInfo> musicPlayList) {
+        MusicPlayerService.musicPlayList = musicPlayList;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        musicPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                
+            }
+        });
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent.getStringExtra("action");
         newMusicUrl = intent.getStringExtra("musicUrl");
+        //如果是同一首歌说明上一次点进歌曲详情的歌曲 与 这次点进来的歌曲 是同一首歌曲
         if (oldMusicUrl.equals(newMusicUrl)){
             if("pause".equals(action)){
                 pauseMusic();
             }else if("play".equals(action)){
                 musicPlayer.start();
+            }else if("overplay".equals(action)){
+                //强制要求重新播放，用于使用切换上一首和下一首
+                startMusic();
             }
         }else {
             oldMusicUrl = newMusicUrl;
-            if ("play".equals(action)){
+            if ("play".equals(action)||"overplay".equals(action)){
                 if(musicPlayer==null){
                     playMusic();
                 }else if(musicPlayer!=null){
@@ -48,6 +96,11 @@ public class MusicPlayerService extends Service {
     }
 
     private static MediaPlayer musicPlayer;
+    /**
+     * 给musicPlayer绑定一个监听事件，用于监听歌曲是否播放完成
+     * */
+
+
     /**
      * 获取musicPlayer实例
      * */

@@ -35,12 +35,14 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.Adapter.LyricAdapter;
 import com.example.Service.MusicPlayerService;
+import com.example.bean.MusicInfo;
 import com.example.bean.lyricBean;
 import com.example.fragment.songdetail.leftFragment;
 import com.example.fragment.songdetail.rightFragment;
 import com.example.gsonClass.Lyric;
 import com.example.gsonClass.MusicUrl;
 import com.example.tools.HttpRequestTool;
+import com.example.tools.MyTool;
 import com.google.gson.Gson;
 import com.example.gsonClass.songDt;
 
@@ -65,7 +67,10 @@ public class SongDetailActivity extends BaseActivity {
     private String songName;  //当前歌曲名字
     private String authorName;//当前歌曲作者名
     private String durationTime;      //当前歌曲的总时间
+    private long id;             //当前歌曲id
+    private String lyric = "纯音乐，尽情享受"; //歌曲歌词
     private String nowTime; //当前时间
+    private MusicInfo musicInfo;
     private TextView startTimeView;
     private long dt = 3599;                  //当前歌曲的总秒数
     private String music;     //当前歌曲url
@@ -130,6 +135,17 @@ public class SongDetailActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Boolean flag = true;
+        int size = MusicPlayerService.getMusicPlayList().size();
+        for(int i = 0 ; i < MusicPlayerService.getMusicPlayList().size();i++){
+            if(musicInfo.getId() ==MusicPlayerService.getMusicPlayList().get(i).getId()){
+                flag = false;
+                break;
+            }
+        }
+        if(flag = true){
+            MusicPlayerService.getMusicPlayList().add(musicInfo);
+        }
     }
     @Override
     protected void onDestroy() {
@@ -143,10 +159,11 @@ public class SongDetailActivity extends BaseActivity {
          * 这里就不再发请求，直接intent传过来
          * */
         Intent intent = getIntent();
-        long id = intent.getLongExtra("id",0);
+        id = intent.getLongExtra("id",0);
         songName = intent.getStringExtra("songName");
         authorName = intent.getStringExtra("authorName");
         bgImgUrl = intent.getStringExtra("bgImg");
+        musicInfo = new MusicInfo(bgImgUrl,songName,authorName,id);
         String url = "http://10.0.2.2:3000/song/detail?ids="+id;
         //获取歌曲播放时长
         HttpRequestTool.get(url,new okhttp3.Callback(){
@@ -160,6 +177,7 @@ public class SongDetailActivity extends BaseActivity {
                     dt = item.getDt();
                 }
                 durationTime = formatTime(dt);    //传过来的duration比较复杂，这里将其处理为 xx:xx 的形式
+                musicInfo.setDurationTime(durationTime);
                 Message message = new Message();
                 message.what = 1;
                 handler.sendMessage(message);
@@ -178,6 +196,7 @@ public class SongDetailActivity extends BaseActivity {
                 for(MusicUrl.DataDTO item : data){
                     music = item.getUrl();
                 }
+                musicInfo.setMusic(music);
                 Message message = new Message();
                 message.what = 2;
                 handler.sendMessage(message);
@@ -194,11 +213,9 @@ public class SongDetailActivity extends BaseActivity {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 Gson gson = new Gson();
-                Log.d("id",id+"");
                 String responseData = response.body().string();
                 Lyric obj = gson.fromJson(responseData,Lyric.class);
                 Lyric.LrcDTO lyricObj = obj.getLrc();
-                String lyric = "纯音乐，尽情享受";
                     if(lyricObj != null ) {
                     lyric = lyricObj.getLyric();
                     //歌词处理函数
@@ -206,6 +223,7 @@ public class SongDetailActivity extends BaseActivity {
                 }else {
                         lyricList.add(new lyricBean(lyric));
                     }
+                    musicInfo.setLyric(lyric);
                 Message message = new Message();
                 message.what = 3;
                 handler.sendMessage(message);
@@ -284,11 +302,88 @@ public class SongDetailActivity extends BaseActivity {
                             flag = i + 1;
                             MusicPlayerService.setFlag(flag);
                             highLightLyric(i,lyricList.get(i).getLyric());
+                            lyricRecyclerView.scrollToPosition(i);
                             break;
                         }
                     }
                 }
 
+            }
+        });
+        //修改播放模式事件
+        ImageView modeBtn = (ImageView) findViewById(R.id.mode_btn);
+        modeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String serviceMode = MusicPlayerService.getMode();
+                String text = "";
+                if(serviceMode.equals("LOOP")){
+                    //修改为顺序播放
+                   Glide.with(SongDetailActivity.this).load(R.drawable.order).into(modeBtn);
+                   MusicPlayerService.setMode("ORDER");
+                   text = "顺序播放";
+                }else if(serviceMode.equals("ORDER")){
+                    //修改为自动播放
+                    Glide.with(SongDetailActivity.this).load(R.drawable.random).into(modeBtn);
+                    MusicPlayerService.setMode("RANDOM");
+                    text="随机播放";
+                }else if(serviceMode.equals("RANDOM")){
+                    //修改为随机播放
+                    Glide.with(SongDetailActivity.this).load(R.drawable.loop).into(modeBtn);
+                    MusicPlayerService.setMode("LOOP");
+                    text="单曲循环";
+                }
+                Toast.makeText(SongDetailActivity.this,text,Toast.LENGTH_SHORT).show();
+            }
+        });
+        //播放下一首事件
+        ImageView nextBtn = (ImageView) findViewById(R.id.next_btn);
+        nextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String mode = MusicPlayerService.getMode();
+                int index = MusicPlayerService.getPlayIndex();
+                int size = MusicPlayerService.getMusicPlayList().size();
+                if(mode.equals("ORDER")){
+                    //正常播放下一首，如果是最后一首就跳转到第一首去
+                   if(index == size - 1){
+                       MusicPlayerService.setPlayIndex(0);
+                   }else {
+                       MusicPlayerService.setPlayIndex(index+1);
+                   }
+                   index = MusicPlayerService.getPlayIndex();
+                }else if(mode.equals("LOOP")){
+
+                }else if(mode.equals("RANDOM")){
+                    index = MyTool.generateRandomNumberTool(0,size);
+                    MusicPlayerService.setPlayIndex(index);
+                }
+                changeMusic(index);
+            }
+        });
+        //播放上一首事件
+        ImageView prvBtn = (ImageView) findViewById(R.id.prv_btn);
+        prvBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String mode = MusicPlayerService.getMode();
+                int index = MusicPlayerService.getPlayIndex();
+                int size = MusicPlayerService.getMusicPlayList().size();
+                if(mode.equals("ORDER")){
+                    //正常播放下一首，如果是最后一首就跳转到第一首去
+                    if(index == 0){
+                        MusicPlayerService.setPlayIndex(size - 1);
+                    }else {
+                        MusicPlayerService.setPlayIndex(index - 1);
+                    }
+                    index = MusicPlayerService.getPlayIndex();
+                }else if(mode.equals("LOOP")){
+
+                }else if(mode.equals("RANDOM")){
+                    index = MyTool.generateRandomNumberTool(0,size);
+                    MusicPlayerService.setPlayIndex(index);
+                }
+                changeMusic(index);
             }
         });
     }
@@ -349,7 +444,7 @@ public class SongDetailActivity extends BaseActivity {
     }
     //播放音乐方法
     public void playMusic(){
-        musicPlayerIntent.putExtra("musicUrl",music);
+         musicPlayerIntent.putExtra("musicUrl",music);
          musicPlayerIntent.putExtra("action","play");
          startService(musicPlayerIntent);//开启服务开始放音乐
     }
@@ -407,6 +502,9 @@ public class SongDetailActivity extends BaseActivity {
     }
     //处理歌词
     private void formatLyric(String lyric){
+        //主要做了HashMap的布置和歌词list的更新
+        lyricMap.clear();
+        lyricList.clear();
         String pattern = "(\\[)(.*?)\\n";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(lyric);
@@ -421,7 +519,7 @@ public class SongDetailActivity extends BaseActivity {
             key = tl.substring(1,6);
             condition = Integer.parseInt(tl.substring(7,8)) ;
             if(condition >= 8){
-                int total =Integer.parseInt(key.substring(0,2) )* 60 + Integer.parseInt(key.substring(3,5)) + 1;
+                int total = changeTimeToSecond(key) + 1;
                 int sec = total % 60;
                 int min = (total - sec)/60;
                 String mint;
@@ -467,5 +565,40 @@ public class SongDetailActivity extends BaseActivity {
         int minTotalSecond = Integer.parseInt(time.substring(0,2) )* 60 ;
         int secTotalSecond = Integer.parseInt(time.substring(3,5));
         return minTotalSecond + secTotalSecond;
+    }
+    //切换歌曲
+    private void changeMusic(int index){
+        //根据索引拿到对应的 歌曲信息
+        HANDLER_STATUS = "handler_begin"; //先把歌词线程给阻止了，等一会再开
+        MusicInfo item = MusicPlayerService.getMusicPlayList().get(index);
+        authorName = item.getAuthorName();
+        songName = item.getSongName();
+        bgImgUrl = item.getBgImgUrl();
+        durationTime = item.getDurationTime();
+        music = item.getMusic();
+        lyric = item.getLyric();
+        //更新标题栏
+        drawTitlebar();
+        //更新背景
+        drawBg();
+        //更新CD
+        lf.drawCD(bgImgUrl);
+        //更新进度条
+        drawProgress();
+        //更新歌词
+        if(lyric.equals("纯音乐，尽情享受")){
+
+        }else {
+            formatLyric(lyric);
+        }
+        drawLyric();
+        //重新开启音乐
+        musicPlayerIntent.putExtra("musicUrl",music);
+        //重播这首歌
+        musicPlayerIntent.putExtra("action","overplay");
+        startService(musicPlayerIntent);//开启服务开始放音乐
+
+        HANDLER_STATUS="handler_begin";
+        handler.sendEmptyMessage(4);
     }
 }

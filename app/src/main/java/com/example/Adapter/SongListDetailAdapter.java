@@ -9,6 +9,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.Service.MusicPlayerService;
+import com.example.bean.MusicInfo;
 import com.example.bean.personalizedDetailBean;
 import com.example.mycloudmusic.R;
 import com.example.mycloudmusic.SongDetailActivity;
@@ -47,6 +50,19 @@ public class SongListDetailAdapter extends RecyclerView.Adapter<SongListDetailAd
                 Intent intent = new Intent(parent.getContext(), SongDetailActivity.class);
                 intent.putExtra("id",id).putExtra("songName",songName)
                         .putExtra("authorName",authorName).putExtra("bgImg",bgImg);
+                Boolean flag = true;
+                for(int i = 0 ; i < MusicPlayerService.getMusicPlayList().size();i++){
+                    MusicInfo info = MusicPlayerService.getMusicPlayList().get(i);
+                    if(id == info.getId()){
+                        //说明已经存在这首歌在列表里面了
+                        flag = false;
+                        MusicPlayerService.setPlayIndex(i);
+                    }
+                }
+                if(flag == true){
+                    //说明新增的这首歌还没在列表里面
+                    MusicPlayerService.setPlayIndex(MusicPlayerService.getMusicPlayList().size());
+                }
                 parent.getContext().startActivity(intent);
             }
         });
