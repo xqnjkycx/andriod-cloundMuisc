@@ -5,8 +5,10 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.example.bean.MusicInfo;
+import com.example.mycloudmusic.SongDetailActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,8 @@ public class MusicPlayerService extends Service {
     private static String mode = "ORDER"; //默认播放器是顺序播放
     private static List<MusicInfo> musicPlayList = new ArrayList<>();
     private static int playIndex = -1;
+//    private static MediaPlayer musicPlayer;
+    private static MediaPlayer musicPlayer;
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -58,18 +62,29 @@ public class MusicPlayerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        musicPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                
-            }
-        });
+
+//        musicPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//            @Override
+//            public void onCompletion(MediaPlayer mp) {
+//                Intent intentBroadcastReceiver = new Intent();
+//                intentBroadcastReceiver.setAction(SongDetailActivity.ACTION_SERVICE_NEED);
+//                sendBroadcast(intentBroadcastReceiver);
+//            }
+//        });
+        musicPlayer = new MediaPlayer();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent.getStringExtra("action");
         newMusicUrl = intent.getStringExtra("musicUrl");
+//        musicPlayer = MediaPlayer.create(this, Uri.parse(newMusicUrl));
+        try{
+            musicPlayer.setDataSource(newMusicUrl);
+            musicPlayer.prepare();
+        }catch (Exception e ){
+            e.printStackTrace();
+        }
         //如果是同一首歌说明上一次点进歌曲详情的歌曲 与 这次点进来的歌曲 是同一首歌曲
         if (oldMusicUrl.equals(newMusicUrl)){
             if("pause".equals(action)){
@@ -81,24 +96,28 @@ public class MusicPlayerService extends Service {
                 startMusic();
             }
         }else {
-            oldMusicUrl = newMusicUrl;
             if ("play".equals(action)||"overplay".equals(action)){
-                if(musicPlayer==null){
+                if(oldMusicUrl.equals("")){
                     playMusic();
-                }else if(musicPlayer!=null){
+                }else{
                     startMusic();
                 }
             }else if("pause".equals(action)){
                 pauseMusic();
             }
+            oldMusicUrl = newMusicUrl;
         }
+        //。。。。。
+        musicPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                Intent intentBroadcastReceiver = new Intent();
+                intentBroadcastReceiver.setAction(SongDetailActivity.ACTION_SERVICE_NEED);
+                sendBroadcast(intentBroadcastReceiver);
+            }
+        });
         return super.onStartCommand(intent, flags, startId);
     }
-
-    private static MediaPlayer musicPlayer;
-    /**
-     * 给musicPlayer绑定一个监听事件，用于监听歌曲是否播放完成
-     * */
 
 
     /**
@@ -112,14 +131,23 @@ public class MusicPlayerService extends Service {
      * 播放音乐
      * */
     private void playMusic(){
-        musicPlayer = MediaPlayer.create(this, Uri.parse(newMusicUrl));
+//        musicPlayer = MediaPlayer.create(this, Uri.parse(newMusicUrl));
+        try{
+            musicPlayer.setDataSource(newMusicUrl);
+            musicPlayer.prepare();
+        }catch (Exception e ){
+            e.printStackTrace();
+        }
         musicPlayer.start();
     }
     /**
      * 暂停音乐
      * */
     private void pauseMusic(){
-        if(musicPlayer!=null&&musicPlayer.isPlaying()){
+//        if(musicPlayer!=null&&musicPlayer.isPlaying()){
+//            musicPlayer.pause();
+//        }
+        if(musicPlayer.isPlaying()){
             musicPlayer.pause();
         }
     }
@@ -129,15 +157,21 @@ public class MusicPlayerService extends Service {
     private void stopMusic(){
             musicPlayer.stop();
             musicPlayer.reset();
-            musicPlayer.release();
-            musicPlayer = null;
+           // musicPlayer.release();
+           // musicPlayer = null;
     }
     /**
      * 开启音乐(当点入一首新歌进来的时候，应该把上一首的歌暂停释放并重新播放这首新歌)
      * */
     private void startMusic(){
         stopMusic();
-        musicPlayer = MediaPlayer.create(this, Uri.parse(newMusicUrl));
+        //musicPlayer = MediaPlayer.create(this, Uri.parse(newMusicUrl));
+        try{
+            musicPlayer.setDataSource(newMusicUrl);
+            musicPlayer.prepare();
+        }catch (Exception e ){
+            e.printStackTrace();
+        }
         musicPlayer.start();
         flag = 0;
     }

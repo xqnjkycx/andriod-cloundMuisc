@@ -10,7 +10,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
@@ -87,7 +90,10 @@ public class SongDetailActivity extends BaseActivity {
     private List<lyricBean> lyricList = new ArrayList<>(); //存放歌词的数组
     private List<String> timeList = new ArrayList<>();
     private int currentPosition; //当前播放的歌词行数
-    private MediaPlayer musicPlayer;//歌曲播放器实例
+    private MediaPlayer musicPlayer; //歌曲播放器实例
+    private ImageView nextBtn;
+    public static final String ACTION_SERVICE_NEED = "action.serviceneed";
+    public MusicPlayerServiceReceiver receiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,6 +133,10 @@ public class SongDetailActivity extends BaseActivity {
         musicPlayerIntent = new Intent(this, MusicPlayerService.class); //开启播放服务，进入到歌曲详情页就自动播放
         startTimeView = (TextView) findViewById(R.id.start_time);
         initClick();//初始化各类点击事件
+        IntentFilter fliter = new IntentFilter();
+        fliter.addAction(ACTION_SERVICE_NEED);
+        receiver = new MusicPlayerServiceReceiver();
+        registerReceiver(receiver,fliter);
     }
     @Override
     protected void onStart() {
@@ -143,7 +153,7 @@ public class SongDetailActivity extends BaseActivity {
                 break;
             }
         }
-        if(flag = true){
+        if(flag == true){
             MusicPlayerService.getMusicPlayList().add(musicInfo);
         }
     }
@@ -151,7 +161,18 @@ public class SongDetailActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         HANDLER_STATUS = "handler_stop";//活动销毁的时候，暂停计时线程
+        unregisterReceiver(receiver);
     }
+    //广播内部类，用于接收服务发过来的消息
+    class MusicPlayerServiceReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            nextBtn.performClick();
+            Log.d("收到了来自服务传递过来的信息","------");
+        }
+    }
+
+
     //请求歌曲基本详情信息数据
     private void initSongDetail(){
         /**
@@ -337,7 +358,7 @@ public class SongDetailActivity extends BaseActivity {
             }
         });
         //播放下一首事件
-        ImageView nextBtn = (ImageView) findViewById(R.id.next_btn);
+        nextBtn = (ImageView) findViewById(R.id.next_btn);
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -469,6 +490,7 @@ public class SongDetailActivity extends BaseActivity {
                         try {
                             //计时线程，当计时线程开启的时候，不断去更新progress的进度和左侧的当前播放时间
                             musicPlayer = MusicPlayerService.getMusicPlayer();
+                            Log.d("musicPlayer",musicPlayer+"");
                             finalProgress = musicPlayer.getCurrentPosition()*100/dt;
                             seekBar.setProgress((int)finalProgress);
                             nowTime = formatTime(musicPlayer.getCurrentPosition());
@@ -480,6 +502,8 @@ public class SongDetailActivity extends BaseActivity {
                         handler.sendEmptyMessageDelayed(4,1000);
                         Log.d("Handler_status",""+HANDLER_STATUS);
                     }
+                    break;
+                case 5:
                     break;
                 default:
                     break;
